@@ -14,6 +14,8 @@ func _ready():
 	agent.path_desired_distance = 4.0
 	agent.target_desired_distance = 8.0
 
+
+#　ーーーーー　マウスで移動　ーーーーー
 func _unhandled_input(event):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -21,6 +23,7 @@ func _unhandled_input(event):
 			agent.target_position = target_position
 			is_moving = true
 
+#　ーーーーー　移動について　ーーーーー
 func _physics_process(_delta):
 
 	if not is_moving:
@@ -47,7 +50,7 @@ func _physics_process(_delta):
 	move_and_slide()
 	
 	
-	
+#　ーーーーー　アニメーション制御　ーーーーー
 func update_animation(direction: Vector2):
 
 	if abs(direction.x) > abs(direction.y):
@@ -69,5 +72,6 @@ func update_animation(direction: Vector2):
 				sprite.play("back")
 				
 				
+#　ーーーーー　停止時のアニメーション制御　ーーーーー
 func update_idle_animation():
 	sprite.stop()

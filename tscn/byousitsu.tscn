@@ -1,15 +1,14 @@
-[gd_scene load_steps=11 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=10 format=3 uid="uid://ysfb2agjf0a3"]
 
+[ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://tscn/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://byk1bgkla1nj8" path="res://image/3.png" id="1_t0s2g"]
 [ext_resource type="PackedScene" uid="uid://bpul3kar1uylb" path="res://tscn/player.tscn" id="2_t0s2g"]
 [ext_resource type="Script" uid="uid://dnt4r8raaprhd" path="res://tscn/camera_2d.gd" id="3_iisva"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_iisva"]
-vertices = PackedVector2Array(644.633, 85.4219, 19.7422, 277.563, -600.789, 97.5781, 18.0313, -95.1484)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(-642.56, 103.68, 17.92, -105.6, 679.68, 85.12, 19.84, 288)])
-
-[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_t0s2g"]
+vertices = PackedVector2Array(-258.688, 36.2031, -277.578, 31.5234, -41.6094, -41.0703, -40.4609, -7.02344, 511.391, 80.7188, 553.742, 93.3906, 363.969, 149.609, 403.852, 116.781, -263.477, 111.75, -280.563, 107.094, -254.477, 96.8672, -179.227, 80.8828, 61.0078, 239.383, 53.2969, 236.531, 119.203, 216.867, 187.594, 201.867, 147.82, 184.32, 108.422, 165.641, 148.359, 170.719, 338.281, 94.9297, 305.68, 115.758, -84.3203, 115.133, 42.2031, 15.6484, 28.1094, 140.547, 245.227, 71.4531, 312.82, 45.9375, 337.633, 56.0391, 156.141, 39.8438, 110.227, -11.6797, 154.203, 4.53906, -54.3438, 167.18, -83.0078, 153.57)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 7), PackedInt32Array(8, 9, 10, 11), PackedInt32Array(12, 13, 14, 15), PackedInt32Array(16, 15, 14), PackedInt32Array(16, 14, 17, 18), PackedInt32Array(19, 7, 6, 20), PackedInt32Array(11, 10, 0, 3), PackedInt32Array(21, 11, 3, 22, 23), PackedInt32Array(24, 25, 26, 19, 20, 18), PackedInt32Array(27, 24, 18, 17, 23), PackedInt32Array(28, 29, 27, 23, 22), PackedInt32Array(21, 23, 30, 31)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-560.64, 108.16, 30.08, -73.6, 572.16, 88.32, 18.56, 262.4), PackedVector2Array(-5.75998, -65.92, -32, -52.48, -30.72, -14.72, 41.6, 5.12001, 110.08, -22.4, 163.84, -2.56, 165.76, 32.64, 245.12, 60.8, 312.96, 35.2, 347.52, 49.28, 348.16, 87.68, 403.84, 106.24, 518.4, 67.84, 28.8, -73.6), PackedVector2Array(158.08, 177.92, 229.12, 209.28, 371.84, 165.76, 304.64, 126.72), PackedVector2Array(-559.36, 103.68, 10.24, 265.6, 56.32, 248.32, 21.76, 235.52, 107.52, 209.92, 99.84, 173.44, 28.16, 151.04, -55.04, 177.92, -92.8, 160, -94.08, 122.24, -179.2, 91.52, -263.04, 122.24, -312.32, 108.8, -264.96, 90.24, -268.16, 44.16, -325.12, 30.08)])
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_iisva"]
 radius = 28.4312
@@ -26,12 +25,10 @@ height = 97.6
 radius = 18.0449
 height = 166.497
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_2rvdw"]
-height = 136.0
-
 [node name="Node2D" type="Node2D"]
 position = Vector2(576, 324)
 scale = Vector2(1.25, 1.25)
+script = ExtResource("1_fd7ky")
 metadata/_edit_lock_ = true
 
 [node name="background" type="Sprite2D" parent="."]
@@ -53,177 +50,99 @@ script = ExtResource("3_iisva")
 metadata/_edit_lock_ = true
 
 [node name="beds" type="Node2D" parent="."]
-scale = Vector2(1, 1)
 metadata/_edit_lock_ = true
 
-[node name="bed1" type="StaticBody2D" parent="beds" groups=["hide_point"]]
+[node name="bed1" type="Sprite2D" parent="beds" groups=["hide_point"]]
 position = Vector2(56, -64.8)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="beds/bed1"]
+position = Vector2(0, 1.52588e-05)
 rotation = 1.22173
-scale = Vector2(1, 1)
 shape = SubResource("CapsuleShape2D_iisva")
 metadata/_edit_lock_ = true
 
-[node name="Sprite2D" type="Sprite2D" parent="beds/bed1"]
-
-[node name="bed2" type="StaticBody2D" parent="beds" groups=["hide_point"]]
-position = Vector2(311.2, -3.99998)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
+[node name="bed2" type="Sprite2D" parent="beds" groups=["hide_point"]]
+position = Vector2(311.2, -3.99997)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="beds/bed2"]
 rotation = 1.22173
-scale = Vector2(1, 1)
 shape = SubResource("CapsuleShape2D_iisva")
 metadata/_edit_lock_ = true
 
-[node name="Sprite2D" type="Sprite2D" parent="beds/bed2"]
-
-[node name="bed3" type="StaticBody2D" parent="beds" groups=["hide_point"]]
+[node name="bed3" type="Sprite2D" parent="beds" groups=["hide_point"]]
 position = Vector2(543.2, 68)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="beds/bed3"]
 rotation = 1.22173
-scale = Vector2(1, 1)
 shape = SubResource("CapsuleShape2D_iisva")
 metadata/_edit_lock_ = true
 
-[node name="Sprite2D" type="Sprite2D" parent="beds/bed3"]
-
-[node name="bed4" type="StaticBody2D" parent="beds" groups=["hide_point"]]
+[node name="bed4" type="Sprite2D" parent="beds" groups=["hide_point"]]
 position = Vector2(-572, 114.4)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="beds/bed4"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="beds/bed4"]
 shape = SubResource("CircleShape2D_iisva")
 metadata/_edit_lock_ = true
 
-[node name="bed5" type="StaticBody2D" parent="beds" groups=["hide_point"]]
+[node name="bed5" type="Sprite2D" parent="beds" groups=["hide_point"]]
 position = Vector2(-333.6, 180.8)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="beds/bed5"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="beds/bed5"]
 shape = SubResource("CircleShape2D_iisva")
 metadata/_edit_lock_ = true
 
-[node name="bed6" type="StaticBody2D" parent="beds" groups=["hide_point"]]
-position = Vector2(-91.2, 248.8)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="beds/bed6"]
+[node name="bed6" type="Sprite2D" parent="beds" groups=["hide_point"]]
+position = Vector2(-91.2001, 248.8)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="beds/bed6"]
+position = Vector2(3.05176e-05, 0)
 shape = SubResource("CircleShape2D_iisva")
 metadata/_edit_lock_ = true
 
 [node name="closets" type="Node2D" parent="."]
-scale = Vector2(1, 1)
 metadata/_edit_lock_ = true
 
-[node name="closet1" type="StaticBody2D" parent="closets" groups=["hide_point"]]
+[node name="closet1" type="Sprite2D" parent="closets" groups=["hide_point"]]
 position = Vector2(170.4, -114.4)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="closets/closet1"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="closets/closet1"]
+position = Vector2(6.10352e-05, 0)
 shape = SubResource("CapsuleShape2D_rrgwt")
 metadata/_edit_lock_ = true
 
-[node name="closet2" type="StaticBody2D" parent="closets" groups=["hide_point"]]
+[node name="closet2" type="Sprite2D" parent="closets" groups=["hide_point"]]
 position = Vector2(423.2, -41.6)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="closets/closet2"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="closets/closet2"]
 shape = SubResource("CapsuleShape2D_rrgwt")
 metadata/_edit_lock_ = true
 
-[node name="closet3" type="StaticBody2D" parent="closets" groups=["hide_point"]]
+[node name="closet3" type="Sprite2D" parent="closets" groups=["hide_point"]]
 position = Vector2(-484, 92.8)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="closets/closet3"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="closets/closet3"]
 shape = SubResource("CapsuleShape2D_rrgwt")
 metadata/_edit_lock_ = true
 
-[node name="closet4" type="StaticBody2D" parent="closets" groups=["hide_point"]]
+[node name="closet4" type="Sprite2D" parent="closets" groups=["hide_point"]]
 position = Vector2(-238.4, 156)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="closets/closet4"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="closets/closet4"]
 shape = SubResource("CapsuleShape2D_rrgwt")
 metadata/_edit_lock_ = true
 
-[node name="closet5" type="StaticBody2D" parent="closets" groups=["hide_point"]]
+[node name="closet5" type="Sprite2D" parent="closets" groups=["hide_point"]]
 position = Vector2(4, 222.4)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="closets/closet5"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="closets/closet5"]
 shape = SubResource("CapsuleShape2D_rrgwt")
 metadata/_edit_lock_ = true
 
-[node name="sofa" type="StaticBody2D" parent="." groups=["hide_point"]]
+[node name="sofa" type="Sprite2D" parent="." groups=["hide_point"]]
 position = Vector2(334.4, 190.4)
-scale = Vector2(1, 1)
-physics_material_override = SubResource("PhysicsMaterial_t0s2g")
-metadata/_edit_lock_ = true
-
-[node name="Sprite2D" type="Sprite2D" parent="sofa"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="sofa"]
+position = Vector2(-6.10352e-05, 0)
 rotation = -1.91986
 shape = SubResource("CapsuleShape2D_fd7ky")
 metadata/_edit_lock_ = true
-
-[node name="obstacle" type="StaticBody2D" parent="."]
-metadata/_edit_lock_ = true
-
-[node name="obstacle1" type="CollisionShape2D" parent="obstacle"]
-position = Vector2(16.8, -168.8)
-shape = SubResource("CapsuleShape2D_2rvdw")
-metadata/_edit_lock_ = true
-
-[node name="obstacle2" type="CollisionShape2D" parent="obstacle"]
-position = Vector2(270.4, -116)
-shape = SubResource("CapsuleShape2D_2rvdw")
-
-[node name="obstacle3" type="CollisionShape2D" parent="obstacle"]
-position = Vector2(504, -44)
-shape = SubResource("CapsuleShape2D_2rvdw")
-
-[node name="obstacle4" type="CollisionShape2D" parent="obstacle"]
-position = Vector2(-596, 49.6)
-shape = SubResource("CapsuleShape2D_2rvdw")
-
-[node name="obstacle5" type="CollisionShape2D" parent="obstacle"]
-position = Vector2(-362.4, 110.4)
-shape = SubResource("CapsuleShape2D_2rvdw")
-
-[node name="obstacle6" type="CollisionShape2D" parent="obstacle"]
-position = Vector2(-110.4, 185.6)
-shape = SubResource("CapsuleShape2D_2rvdw")
