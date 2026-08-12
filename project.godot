@@ -14,6 +14,10 @@ config/name="Team_Unko"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://image/icon.svg"
 
+[autoload]
+
+Global="*res://gd/global.gd"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

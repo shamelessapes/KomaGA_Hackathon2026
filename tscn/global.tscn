@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dsld8eq1mxi6t"]
+
+[ext_resource type="Script" uid="uid://dge75g5llclfh" path="res://gd/global.gd" id="1_dfct3"]
+
+[node name="global" type="Node2D"]
+position = Vector2(576, 324)
+script = ExtResource("1_dfct3")

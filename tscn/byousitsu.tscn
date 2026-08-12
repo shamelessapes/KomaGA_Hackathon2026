@@ -1,0 +1,61 @@
+[gd_scene load_steps=6 format=3 uid="uid://ysfb2agjf0a3"]
+
+[ext_resource type="Texture2D" uid="uid://0kbfaacm63bw" path="res://image/icon.svg" id="1_1mo12"]
+[ext_resource type="PackedScene" uid="uid://bpul3kar1uylb" path="res://tscn/player.tscn" id="2_t0s2g"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_iisva"]
+vertices = PackedVector2Array(366.906, 157.008, 16.0391, 297.203, -350.359, 146.773, -4, 15.4922)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-377.6, 146.4, -4, 4.79999, 394.4, 156.8, 16, 308)])
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_t0s2g"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iisva"]
+size = Vector2(71.2, 66.4)
+
+[node name="Node2D" type="Node2D"]
+position = Vector2(576, 324)
+scale = Vector2(1.25, 1.25)
+
+[node name="yuka" type="Sprite2D" parent="."]
+position = Vector2(5, 163)
+rotation = -0.349066
+scale = Vector2(3.5, 3.5)
+skew = -0.836013
+texture = ExtResource("1_1mo12")
+metadata/_edit_lock_ = true
+
+[node name="kabe1" type="Sprite2D" parent="."]
+position = Vector2(204, -80)
+rotation = 0.349066
+scale = Vector2(3.5, 2.598)
+skew = -0.349066
+texture = ExtResource("1_1mo12")
+metadata/_edit_lock_ = true
+
+[node name="kabe2" type="Sprite2D" parent="."]
+position = Vector2(-206, -82)
+rotation = -0.349066
+scale = Vector2(3.5, 2.598)
+skew = 0.349066
+texture = ExtResource("1_1mo12")
+metadata/_edit_lock_ = true
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_iisva")
+
+[node name="player" parent="." instance=ExtResource("2_t0s2g")]
+position = Vector2(0.799927, 69.6)
+scale = Vector2(0.5, 0.5)
+
+[node name="bed" type="Sprite2D" parent="."]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="bed"]
+position = Vector2(-140.8, 136.8)
+scale = Vector2(1, 1)
+physics_material_override = SubResource("PhysicsMaterial_t0s2g")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="bed/StaticBody2D"]
+scale = Vector2(1, 1)
+shape = SubResource("RectangleShape2D_iisva")
+metadata/_edit_lock_ = true

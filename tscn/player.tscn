@@ -1,0 +1,56 @@
+[gd_scene load_steps=5 format=3 uid="uid://bpul3kar1uylb"]
+
+[ext_resource type="Script" uid="uid://bffqk7jgt0q0s" path="res://gd/player.gd" id="1_7omxl"]
+[ext_resource type="Texture2D" uid="uid://0kbfaacm63bw" path="res://image/icon.svg" id="2_3c7ea"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_u4c7w"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_3c7ea")
+}],
+"loop": true,
+"name": &"back",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_3c7ea")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_3c7ea")
+}],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_3c7ea")
+}],
+"loop": true,
+"name": &"right",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_7omxl"]
+radius = 55.7853
+
+[node name="player" type="CharacterBody2D" groups=["player"]]
+position = Vector2(576, 324)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("1_7omxl")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_u4c7w")
+animation = &"right"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_7omxl")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
