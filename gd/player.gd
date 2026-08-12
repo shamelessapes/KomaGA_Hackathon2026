@@ -9,6 +9,7 @@ var target_position: Vector2
 var is_moving := false
 
 func _ready():
+	print("Hello World")
 	target_position = global_position
 
 	agent.path_desired_distance = 4.0
