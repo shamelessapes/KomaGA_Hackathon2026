@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://b5460o1hithmm" path="res://image/black_window.png" id="5_rrgwt"]
 [ext_resource type="PackedScene" uid="uid://c4gworhocjf57" path="res://tscn/inventory_ui.tscn" id="6_inventoryui"]
 [ext_resource type="PackedScene" uid="uid://cmu63tmr4jaqe" path="res://tscn/world_item.tscn" id="7_worlditem"]
-[ext_resource type="PackedScene" uid="uid://bpvo2tmpqndec" path="res://monster_1.tscn" id="8_monster"]
+[ext_resource type="PackedScene" uid="uid://bpvo2tmpqndec" path="res://tscn/monster_1.tscn" id="8_monster"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_iisva"]
 vertices = PackedVector2Array(-258.688, 36.2031, -277.578, 31.5234, -41.6094, -41.0703, -40.4609, -7.02344, 511.391, 80.7188, 553.742, 93.3906, 363.969, 149.609, 403.852, 116.781, -263.477, 111.75, -280.563, 107.094, -254.477, 96.8672, -179.227, 80.8828, 61.0078, 239.383, 53.2969, 236.531, 119.203, 216.867, 187.594, 201.867, 147.82, 184.32, 108.422, 165.641, 148.359, 170.719, 338.281, 94.9297, 305.68, 115.758, -84.3203, 115.133, 42.2031, 15.6484, 28.1094, 140.547, 245.227, 71.4531, 312.82, 45.9375, 337.633, 56.0391, 156.141, 39.8438, 110.227, -11.6797, 154.203, 4.53906, -54.3438, 167.18, -83.0078, 153.57)
@@ -267,5 +267,5 @@ rotation = 0.286698
 rotates = false
 loop = false
 
-[node name="CharacterBody2D" parent="Path2D/PathFollow2D" groups=["monster"] instance=ExtResource("8_monster")]
+[node name="CharacterBody2D" parent="Path2D/PathFollow2D" instance=ExtResource("8_monster")]
 position = Vector2(-221.876, -249.021)

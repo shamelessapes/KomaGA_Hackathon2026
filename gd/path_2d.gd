@@ -14,4 +14,4 @@ func _physics_process(delta):
 	else:
 		path_follow.progress = curve_length
 
-	print("progress: ", path_follow.progress)  # デバッグ用、これだけでOK
+	#print("progress: ", path_follow.progress)  # デバッグ用、これだけでOK

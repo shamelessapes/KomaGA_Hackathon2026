@@ -53,4 +53,5 @@ func play_check():
 
 #ここで数値を計測してcheckpointの座標をあぶる
 func _physics_process(delta):
-	print(path_follow.progress_ratio)
+	pass
+	#print(path_follow.progress_ratio)
