@@ -1,10 +1,12 @@
-[gd_scene load_steps=11 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=14 format=3 uid="uid://ysfb2agjf0a3"]
 
 [ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://gd/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://byk1bgkla1nj8" path="res://image/3.png" id="1_t0s2g"]
 [ext_resource type="PackedScene" uid="uid://bpul3kar1uylb" path="res://tscn/player.tscn" id="2_t0s2g"]
 [ext_resource type="Script" uid="uid://dnt4r8raaprhd" path="res://gd/camera_2d.gd" id="3_iisva"]
 [ext_resource type="Texture2D" uid="uid://b5460o1hithmm" path="res://image/black_window.png" id="5_rrgwt"]
+[ext_resource type="PackedScene" uid="uid://c4gworhocjf57" path="res://tscn/inventory_ui.tscn" id="6_inventoryui"]
+[ext_resource type="PackedScene" uid="uid://cmu63tmr4jaqe" path="res://tscn/world_item.tscn" id="7_worlditem"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_iisva"]
 vertices = PackedVector2Array(-258.688, 36.2031, -277.578, 31.5234, -41.6094, -41.0703, -40.4609, -7.02344, 511.391, 80.7188, 553.742, 93.3906, 363.969, 149.609, 403.852, 116.781, -263.477, 111.75, -280.563, 107.094, -254.477, 96.8672, -179.227, 80.8828, 61.0078, 239.383, 53.2969, 236.531, 119.203, 216.867, 187.594, 201.867, 147.82, 184.32, 108.422, 165.641, 148.359, 170.719, 338.281, 94.9297, 305.68, 115.758, -84.3203, 115.133, 42.2031, 15.6484, 28.1094, 140.547, 245.227, 71.4531, 312.82, 45.9375, 337.633, 56.0391, 156.141, 39.8438, 110.227, -11.6797, 154.203, 4.53906, -54.3438, 167.18, -83.0078, 153.57)
@@ -26,6 +28,9 @@ height = 97.6
 radius = 18.0449
 height = 166.497
 
+[sub_resource type="LabelSettings" id="LabelSettings_mw5w4"]
+font_size = 30
+
 [node name="Node2D" type="Node2D"]
 position = Vector2(576, 324)
 scale = Vector2(1.25, 1.25)
@@ -45,6 +50,7 @@ navigation_polygon = SubResource("NavigationPolygon_iisva")
 metadata/_edit_lock_ = true
 
 [node name="player" parent="." instance=ExtResource("2_t0s2g")]
+z_index = 1
 position = Vector2(0.799927, 69.6)
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -190,6 +196,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_font_sizes/font_size = 24
 text = "隠れる？"
+label_settings = SubResource("LabelSettings_mw5w4")
 vertical_alignment = 1
 
 [node name="YesButton" type="Button" parent="HideUI/HideConfirmationUI"]
@@ -205,7 +212,7 @@ offset_right = -411.0
 offset_bottom = -348.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 30
 text = "はい"
 
 [node name="NoButton" type="Button" parent="HideUI/HideConfirmationUI"]
@@ -221,5 +228,25 @@ offset_right = -316.0
 offset_bottom = -348.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 30
 text = "いいえ"
+
+[node name="InventoryUI" parent="." instance=ExtResource("6_inventoryui")]
+
+[node name="Items" type="Node2D" parent="."]
+
+[node name="godot_kun" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(-100, 100)
+scale = Vector2(0.5, 0.5)
+
+[node name="godot_kun2" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(-9.60001, -44.8)
+scale = Vector2(0.5, 0.5)
+
+[node name="godot_kun3" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(177.6, 64)
+scale = Vector2(0.5, 0.5)
+
+[node name="godot_kun4" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(171.2, 148)
+scale = Vector2(0.5, 0.5)

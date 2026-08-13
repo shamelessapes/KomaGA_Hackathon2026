@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3 uid="uid://c4gworhocjf57"]
+
+[ext_resource type="Script" uid="uid://oxsmcyepmmx" path="res://gd/inventory_ui.gd" id="1_inventoryui"]
+[ext_resource type="PackedScene" uid="uid://ct3l0lv3je581" path="res://tscn/item_tooltip.tscn" id="2_tooltip"]
+[ext_resource type="Script" uid="uid://d1agehc0n68yu" path="res://gd/drop_zone.gd" id="3_dropzone"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_qd42w"]
+font_size = 25
+font_color = Color(1, 1, 0, 1)
+outline_size = 13
+outline_color = Color(0, 0, 0, 1)
+
+[node name="InventoryUI" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_inventoryui")
+
+[node name="DropZone" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("3_dropzone")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+offset_right = 240.0
+offset_bottom = 110.0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="MessageLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "メッセージ表示領域"
+label_settings = SubResource("LabelSettings_qd42w")
+
+[node name="ItemTooltip" parent="." instance=ExtResource("2_tooltip")]

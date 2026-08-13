@@ -3,6 +3,10 @@ extends Node2D
 ## プレイヤーから隠れ場所までの最大許容距離
 @export var hide_distance: float = 100.0
 
+## プレイヤーからアイテムまでの最大取得許容距離
+@export var item_pickup_distance: float = 100.0
+
+
 ## Monster回避の検出半径
 @export var monster_avoid_radius: float = 50.0
 
@@ -43,33 +47,85 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# 隠れている最中は隠れ場所の右クリックを受け付けない（「出る？」UIを維持する）
+	# 隠れている最中は右クリックを受け付けない（「出る？」UIを維持する）
 	if is_hiding:
 		return
 
-	# 右クリックされた際にマウス位置で隠れ場所判定を実行
+	# 右クリックされた際にマウス位置でインタラクション判定を実行
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			var mouse_pos: Vector2 = get_global_mouse_position()
-			_check_and_select_hide_point(mouse_pos)
+			_handle_right_click_interaction(mouse_pos)
 
 
 # ========================================================
-# 1. 隠れ場所を選択する処理 (判定・情報更新・UI表示)
+# 1. 右クリックインタラクション処理 (優先順位: アイテム -> 隠れ場所)
 # ========================================================
-func _check_and_select_hide_point(click_pos: Vector2) -> void:
+func _handle_right_click_interaction(click_pos: Vector2) -> void:
 	if is_hiding:
 		return
 
 	# マウス位置にあるArea2Dを取得
 	var clicked_area: Area2D = _get_area_at_position(click_pos)
-	
-	# Area2Dが存在し、かつ "hide_point" グループに所属しているかチェック
-	if clicked_area and clicked_area.is_in_group("hide_point"):
-		# プレイヤーからの距離をチェック
+	if clicked_area == null:
+		return
+
+	# 1. アイテム取得判定 (最優先)
+	if clicked_area.is_in_group("item"):
+		_try_pickup_item(clicked_area)
+		return
+
+	# 2. 隠れ場所判定
+	if clicked_area.is_in_group("hide_point"):
 		var distance: float = player.global_position.distance_to(clicked_area.global_position)
 		if distance <= hide_distance:
 			select_hide_point(clicked_area)
+
+
+## アイテム拾い処理
+func _try_pickup_item(area: Area2D) -> void:
+	var item_node: Node = area.get_parent()
+	var item_id: String = ""
+
+	if item_node and "item_id" in item_node:
+		item_id = item_node.item_id
+	elif "item_id" in area:
+		item_id = area.item_id
+
+	if item_id == "":
+		return
+
+	# プレイヤーからの距離をチェック（100px以内か）
+	var target_pos: Vector2 = area.global_position
+	if item_node is Node2D:
+		target_pos = (item_node as Node2D).global_position
+
+	var distance: float = player.global_position.distance_to(target_pos)
+	if distance > item_pickup_distance:
+		return
+
+
+	# アイテムノードのscaleを取得（transformの調整値の保持）
+	var node_scale: Vector2 = Vector2.ONE
+	if item_node is Node2D and item_node != self:
+		node_scale = (item_node as Node2D).scale
+	else:
+		node_scale = area.scale
+
+	if InventoryManager and InventoryManager.add_item(item_id, 1, node_scale):
+		# 成功した場合、マップ上からアイテムノードを削除
+		if item_node and item_node != self and item_node is Node2D:
+			item_node.queue_free()
+		else:
+			area.queue_free()
+
+
+
+
+## 既存互換用
+func _check_and_select_hide_point(click_pos: Vector2) -> void:
+	_handle_right_click_interaction(click_pos)
+
 
 
 ## 隠れ場所を選択し、メタデータの読み込みとUI表示を行う

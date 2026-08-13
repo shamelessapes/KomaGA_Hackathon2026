@@ -11,7 +11,9 @@ var is_hidden := false
 
 func _ready():
 	print("Hello World")
+	add_to_group("player")
 	target_position = global_position
+
 
 	agent.path_desired_distance = 4.0
 	agent.target_desired_distance = 8.0
