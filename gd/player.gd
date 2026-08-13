@@ -7,6 +7,7 @@ extends CharacterBody2D
 
 var target_position: Vector2
 var is_moving := false
+var is_hidden := false
 
 func _ready():
 	print("Hello World")
@@ -18,6 +19,9 @@ func _ready():
 
 #　ーーーーー　マウスで移動　ーーーーー
 func _unhandled_input(event):
+	if is_hidden:
+		return
+		
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			target_position = get_global_mouse_position()
@@ -26,6 +30,9 @@ func _unhandled_input(event):
 
 #　ーーーーー　移動について　ーーーーー
 func _physics_process(_delta):
+	if is_hidden:
+		velocity = Vector2.ZERO
+		return
 
 	if not is_moving:
 		velocity = Vector2.ZERO
@@ -76,3 +83,16 @@ func update_animation(direction: Vector2):
 #　ーーーーー　停止時のアニメーション制御　ーーーーー
 func update_idle_animation():
 	sprite.stop()
+
+#　ーーーーー　隠れる状態の設定　ーーーーー
+func set_hidden_state(hidden: bool, hide_position: Vector2 = Vector2.ZERO) -> void:
+	is_hidden = hidden
+	if hidden:
+		is_moving = false
+		velocity = Vector2.ZERO
+		global_position = hide_position
+		visible = false
+	else:
+		is_moving = false
+		target_position = global_position
+		visible = true
