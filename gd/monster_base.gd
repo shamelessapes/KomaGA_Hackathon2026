@@ -51,12 +51,14 @@ func _ready() -> void:
 	if not is_in_group("monster"):
 		add_to_group("monster")
 
-	# 探索フェーズ中は非表示・待機
-	visible = false
+	# 探索フェーズ中は非表示・待機 (必ず次の Phase.HIDE を待つ)
+	set_monster_visible(false)
 	while Phasemanager.current_phase != Phasemanager.Phase.HIDE:
-		await Phasemanager.phase_changed
+		var new_phase = await Phasemanager.phase_changed
+		if new_phase == Phasemanager.Phase.HIDE:
+			break
 
-	visible = true
+	set_monster_visible(true)
 	last_position = global_position
 
 	if path_follow == null:
@@ -72,17 +74,36 @@ func _ready() -> void:
 	for i in range(checkpoints.size()):
 		var point = checkpoints[i]
 		await _move_to_ratio(point["ratio"], curve_length)
+
+		# 捕獲発生時は巡回・チェック・消去を即座に完全停止
+		var main_scene = get_tree().current_scene if get_tree() else null
+		if main_scene and "is_captured" in main_scene and main_scene.is_captured:
+			return
+
 		_on_checkpoint_reached(i)
+
+		if main_scene and "is_captured" in main_scene and main_scene.is_captured:
+			return
 
 		if i == checkpoints.size() - 1:
 			queue_free()
 		elif point["check"]:
 			await play_check()
 
+		if main_scene and "is_captured" in main_scene and main_scene.is_captured:
+			return
+
 
 ## チェックポイントまでの移動ロジック
 func _move_to_ratio(target_ratio: float, curve_length: float) -> void:
-	while path_follow.progress_ratio < target_ratio:
+	while path_follow and is_inside_tree() and path_follow.progress_ratio < target_ratio:
+		if get_tree() == null:
+			return
+
+		var main_scene = get_tree().current_scene
+		if main_scene and "is_captured" in main_scene and main_scene.is_captured:
+			return
+
 		var delta = get_physics_process_delta_time()
 		path_follow.progress_ratio += (speed * delta) / curve_length
 
@@ -96,53 +117,160 @@ func _move_to_ratio(target_ratio: float, curve_length: float) -> void:
 				sprite.play("right")
 		last_position = global_position
 
+		# 隠れていないプレイヤーへの即時接近・捕獲チェック
+		_check_unhidden_player_capture()
+
 		# モンスター固有の移動更新拡張フック
 		_on_movement_update(delta)
 
 		await get_tree().process_frame
-	path_follow.progress_ratio = target_ratio
+		if not is_inside_tree() or get_tree() == null:
+			return
+
+	if path_follow and is_inside_tree():
+		path_follow.progress_ratio = target_ratio
 
 
-## チェックアニメーション再生および襲撃判定用フック呼び出し
+## チェックアニメーション再生および襲撃・発見判定
 func play_check() -> void:
+	if not is_inside_tree() or get_tree() == null:
+		return
+
+	var main_scene = get_tree().current_scene
+	if main_scene and "is_captured" in main_scene and main_scene.is_captured:
+		return
+
 	if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation("check"):
 		sprite.play("check")
+
+	# play_check 時のプレイヤー発見・捕獲判定
+	_check_player_capture_on_check()
+
+	if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation("check"):
 		await sprite.animation_finished
 
-	# TODO: 将来の play_check 時の襲撃判定フック呼び出し
-	# if can_attack_player():
-	#     attack_player()
-
 
 # ========================================================
-# プレイヤー感知機能
+# プレイヤー感知および捕獲判定機能
 # ========================================================
-## プレイヤーが感知範囲内にいるか判定
+## モンスターおよび子ノードのスプライトの表示／非表示を一括制御
+func set_monster_visible(is_vis: bool) -> void:
+	visible = is_vis
+	if sprite:
+		sprite.visible = is_vis
+
+
+## モンスターの見た目上の中心座標を取得
+func get_monster_center_position() -> Vector2:
+	if sprite:
+		return sprite.global_position
+	return global_position
+
+
+## プレイヤーが感知範囲内にいるか判定 (見た目上のスプライト中心座標で距離を計算)
 func is_player_detected() -> bool:
+	if not is_inside_tree() or get_tree() == null:
+		return false
+
 	var player_node = get_tree().get_first_node_in_group("player")
 	if player_node is Node2D:
-		var distance = global_position.distance_to((player_node as Node2D).global_position)
+		var m_pos = get_monster_center_position()
+		var p_pos = (player_node as Node2D).global_position
+		var distance = m_pos.distance_to(p_pos)
 		return distance <= detection_radius
 	return false
 
 
-# ========================================================
-# 将来の襲撃判定用フック (未実装機能用準備)
-# ========================================================
-## プレイヤーを襲撃可能か判定するフック
-func can_attack_player() -> bool:
-	# TODO: 将来的に以下のような判定を組み込む予定:
-	# 1. プレイヤーを感知しているか (is_player_detected)
-	# 2. 対応する弱点カテゴリのアイテム効果が有効でないか
+## 隠れていないプレイヤーへの即時感知・捕獲チェック (距離に関わらず即座に捕獲)
+func _check_unhidden_player_capture() -> void:
+	if not is_inside_tree() or get_tree() == null:
+		return
+
+	if Phasemanager.current_phase != Phasemanager.Phase.HIDE:
+		return
+
+	var main_scene = get_tree().current_scene
+	if main_scene == null or not ("is_hiding" in main_scene):
+		return
+
+	if "is_captured" in main_scene and main_scene.is_captured:
+		return
+
+	# プレイヤーが隠れていない場合、怪物を即座に表示して0.5秒間await待機後に捕獲演出を開始
+	if not main_scene.is_hiding:
+		if not can_avoid_capture():
+			print("[%s] かくれんぼフェーズ中に隠れていないプレイヤーを発見！0.5秒後に捕獲演出へ移行します。" % name)
+			set_monster_visible(true)
+			if main_scene.has_method("trigger_capture"):
+				main_scene.trigger_capture(self, 0.5)
+
+
+## play_check 実行時の隠れている／隠れていないプレイヤーの発見判定
+func _check_player_capture_on_check() -> void:
+	if not is_inside_tree() or get_tree() == null:
+		return
+
+	if Phasemanager.current_phase != Phasemanager.Phase.HIDE:
+		return
+
+	var main_scene = get_tree().current_scene
+	if main_scene == null or not ("is_hiding" in main_scene):
+		return
+
+	if "is_captured" in main_scene and main_scene.is_captured:
+		return
+
+	var player_node = get_tree().get_first_node_in_group("player")
+	var dist: float = -1.0
+	if player_node is Node2D:
+		dist = get_monster_center_position().distance_to((player_node as Node2D).global_position)
+
+	print("[%s] play_check 実行中 (距離: %.1fpx / 判定半径: %.1fpx, プレイヤー隠れ状態: %s)" % [name, dist, detection_radius, main_scene.is_hiding])
+
+	# 感知範囲内(100px)にプレイヤーがいるかチェック
 	if not is_player_detected():
-		return false
-	return true
+		print("[%s] プレイヤーは感知範囲外(%.1fpx > %.1fpx)のためスルーします。" % [name, dist, detection_radius])
+		return
+
+	# 捕まらない条件を満たしているかチェック
+	if can_avoid_capture():
+		print("[%s] 捕まらない条件を満たしているため回避されました。" % name)
+		return
+
+	# A. プレイヤーが隠れていない場合 -> 即時捕獲
+	if not main_scene.is_hiding:
+		print("[%s] play_check時に隠れていないプレイヤーを発見！捕獲します。" % name)
+		if main_scene.has_method("trigger_capture"):
+			main_scene.trigger_capture(self)
+		return
+
+	# B. プレイヤーが隠れている場合 -> Find_difficulty による確率判定
+	var find_diff: float = 50.0
+	if "current_find_difficulty" in main_scene:
+		find_diff = float(main_scene.current_find_difficulty)
+
+	# Find_difficulty は「見つからない確率（%）」
+	# 発見閾値 (0 ～ 100)
+	var found_threshold: float = 100.0 - find_diff
+	var roll: float = randf() * 100.0
+
+	if roll < found_threshold:
+		# 見つかった（捕まった）場合
+		print("[発見判定] 隠れ場所で発見されました！ (Find_difficulty: %.1f%% [見つからない確率], ロール値: %.1f < 発見閾値: %.1f)" % [find_diff, roll, found_threshold])
+		if main_scene.has_method("trigger_capture"):
+			main_scene.trigger_capture(self)
+	else:
+		# 見つからなかった（捕まらなかった）場合
+		print("[発見判定] 隠れ場所で見つかりませんでした！ (Find_difficulty: %.1f%% [見つからない確率], ロール値: %.1f >= 発見閾値: %.1f)" % [find_diff, roll, found_threshold])
 
 
-## 襲撃を実行するフック
-func attack_player() -> void:
-	# TODO: 将来の襲撃・ゲームオーバー処理を実装
-	print("[%s] プレイヤーを襲撃！" % name)
+# ========================================================
+# 将来の拡張フック (未実装機能用準備)
+# ========================================================
+## 将来用: Monster 2 以降の「捕まらない条件」判定フック
+## 今後、モンスター固有の回避条件（アイテム効果等）を実装する際に各 monster_X.gd でオーバーライドします。
+func can_avoid_capture() -> bool:
+	return false
 
 
 # ========================================================

@@ -21,8 +21,14 @@ extends Node2D
 ## 出現位置調整の最大試行回数
 @export var max_spawn_position_attempts: int = 10
 
+## 捕獲演出の設定 (Inspector から変更可能)
+@export var capture_duration: float = 1.5
+@export var capture_zoom_delay: float = 1.0
+@export var capture_zoom_scale: float = 7.5
+
 ## 状態管理
 var is_hiding: bool = false
+var is_captured: bool = false
 var current_hide_point: Area2D = null
 var current_find_difficulty: float = 0.0
 var pre_hide_player_position: Vector2 = Vector2.ZERO
@@ -105,12 +111,12 @@ func _on_search_phase_ended() -> void:
 
 
 func _on_hide_phase_ended() -> void:
-	if _day_transition_in_progress:
+	if is_captured or _day_transition_in_progress:
 		return
 	_day_transition_in_progress = true
+	Phasemanager.start_search_phase()
 	await Scenetransition.change_day()
 	_day_transition_in_progress = false
-	Phasemanager.start_search_phase()
 
 
 func _connect_monster_exit_signals() -> void:
@@ -120,6 +126,8 @@ func _connect_monster_exit_signals() -> void:
 
 
 func _on_monster_exited() -> void:
+	if is_captured:
+		return
 	if Phasemanager.current_phase == Phasemanager.Phase.HIDE:
 		print("[Byousitsu] 鬼が退出しました。翌日に切り替えます")
 		Phasemanager.end_hide_phase()
@@ -463,3 +471,102 @@ func _on_no_button_pressed() -> void:
 		current_hide_point = null
 		current_find_difficulty = 0.0
 		hide_confirmation_ui()
+
+
+# ========================================================
+# 捕獲処理 & 演出制御
+# ========================================================
+## 共通の捕獲処理関数 (プレイヤー・怪物の停止 -> go_X.png 表示 -> ズーム演出 -> title.tscn へ遷移)
+func trigger_capture(monster: Node2D = null, delay: float = 0.0) -> void:
+	if is_captured:
+		return
+	is_captured = true
+
+	# 捕獲発生時は PhaseManager のフェーズタイマー進行を停止
+	if Phasemanager:
+		Phasemanager._timer_active = false
+
+	var monster_name = monster.name if monster else "Unknown"
+	print("==================================================")
+	print("[捕獲発生] プレイヤーが捕まりました！ (Monster: %s)" % monster_name)
+	print("==================================================")
+
+	# 1. 怪物の姿を画面に確実に表示させ、動きを即座に停止（怪物は画面に表示されたまま静止）
+	if monster:
+		if monster.has_method("set_monster_visible"):
+			monster.set_monster_visible(true)
+		else:
+			monster.visible = true
+		monster.set_physics_process(false)
+		if "speed" in monster:
+			monster.speed = 0.0
+
+	if player:
+		player.set_physics_process(false)
+		player.set_process_unhandled_input(false)
+		if "is_moving" in player:
+			player.is_moving = false
+		if "velocity" in player:
+			player.velocity = Vector2.ZERO
+
+	# 隠れていない状態からの捕獲など、演出開始前のディレイ待機 (0.5秒)
+	if delay > 0.0 and is_inside_tree() and get_tree() != null:
+		print("[Byousitsu] 怪物を画面に表示したまま 捕獲演出開始前に %.1f 秒間待機します..." % delay)
+		await get_tree().create_timer(delay).timeout
+		if not is_inside_tree() or get_tree() == null:
+			return
+
+	# 2. 捕獲画像 (go_X.png) 演出突入の瞬間に怪物の姿を非表示にする
+	if monster:
+		if monster.has_method("set_monster_visible"):
+			monster.set_monster_visible(false)
+		else:
+			monster.visible = false
+
+	# 隠れ確認UIを閉じる
+	hide_confirmation_ui()
+
+	# 2. 捕獲画像 (go_X.png) の決定
+	var day: int = Daymanager.current_day
+	if monster and "target_day" in monster:
+		day = monster.target_day
+
+	var img_path: String = "res://image/go_%d.png" % day
+	var capture_tex: Texture2D = null
+	if ResourceLoader.exists(img_path):
+		capture_tex = load(img_path) as Texture2D
+	else:
+		push_warning("捕獲画像が見つかりません: %s" % img_path)
+
+	# 3. 捕獲画像UIの表示とズーム演出
+	var capture_ui = get_node_or_null("CaptureUI")
+	var capture_rect: TextureRect = null
+	if capture_ui:
+		capture_rect = capture_ui.get_node_or_null("CaptureRect") as TextureRect
+
+	if capture_rect and capture_tex:
+		capture_rect.texture = capture_tex
+		capture_rect.pivot_offset = capture_rect.size / 2.0
+		capture_rect.scale = Vector2.ONE
+		if capture_ui is CanvasLayer:
+			(capture_ui as CanvasLayer).visible = true
+
+		# 最初の capture_zoom_delay 秒間は通常サイズ、残り時間で急速ズームアップ
+		var zoom_duration: float = max(0.1, capture_duration - capture_zoom_delay)
+		var tween = create_tween()
+		tween.tween_interval(capture_zoom_delay)
+		tween.tween_property(capture_rect, "scale", Vector2.ONE * capture_zoom_scale, zoom_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		await tween.finished
+	else:
+		await get_tree().create_timer(capture_duration).timeout
+
+	# 4. title.tscn へ直接パスを指定して遷移
+	var target_scene_path: String = "res://tscn/title.tscn"
+	print("[Byousitsu] 捕獲演出終了。直接パス '%s' へ遷移します" % target_scene_path)
+
+	if is_inside_tree() and get_tree() != null:
+		var err = get_tree().change_scene_to_file(target_scene_path)
+		if err != OK:
+			push_error("[Byousitsu] シーン遷移に失敗しました (%s)。Error code: %d" % [target_scene_path, err])
+	else:
+		push_error("[Byousitsu] ツリー離脱により get_tree() が null のため遷移できませんでした。")

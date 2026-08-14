@@ -77,7 +77,7 @@ metadata/_edit_lock_ = true
 
 [node name="bed1" type="Area2D" parent="beds" groups=["hide_point"]]
 position = Vector2(56, -64.8)
-metadata/find_difficulty = 80
+metadata/find_difficulty = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="beds/bed1"]
 position = Vector2(0, 1.52588e-05)
@@ -298,3 +298,24 @@ curve = SubResource("Curve2D_rrgwt")
 position = Vector2(-284.8, -8.8)
 rotates = false
 loop = false
+
+[node name="CaptureUI" type="CanvasLayer" parent="."]
+layer = 50
+visible = false
+
+[node name="CaptureRect" type="TextureRect" parent="CaptureUI"]
+anchors_preset = -1
+anchor_left = 0.325
+anchor_top = 0.188
+anchor_right = 1.325
+anchor_bottom = 1.188
+offset_left = -374.4
+offset_top = -121.824
+offset_right = -374.4
+offset_bottom = -121.824
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(200, 200)
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
