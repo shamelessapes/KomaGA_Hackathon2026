@@ -1,0 +1,53 @@
+[gd_scene load_steps=5 format=3 uid="uid://dutgk3d8b266h"]
+
+[ext_resource type="Script" uid="uid://cnflm5epui5wt" path="res://gd/monster_7.gd" id="1_54wa6"]
+[ext_resource type="Texture2D" uid="uid://davv05280okel" path="res://image/monster_img/7_l.png" id="1_kdb1a"]
+[ext_resource type="Texture2D" uid="uid://joia83345h4g" path="res://image/monster_img/7_r.png" id="2_54wa6"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jf55t"]
+animations = [{
+"frames": [{
+"duration": 2.5,
+"texture": ExtResource("1_kdb1a")
+}, {
+"duration": 2.5,
+"texture": ExtResource("2_54wa6")
+}, {
+"duration": 2.5,
+"texture": ExtResource("1_kdb1a")
+}, {
+"duration": 2.5,
+"texture": ExtResource("2_54wa6")
+}],
+"loop": false,
+"name": &"check",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 2.5,
+"texture": ExtResource("1_kdb1a")
+}],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 2.5,
+"texture": ExtResource("2_54wa6")
+}],
+"loop": true,
+"name": &"right",
+"speed": 5.0
+}]
+
+[node name="7_death" type="CharacterBody2D" groups=["monster"]]
+script = ExtResource("1_54wa6")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
+position = Vector2(191, 214)
+scale = Vector2(0.0664876, 0.0686849)
+sprite_frames = SubResource("SpriteFrames_jf55t")
+animation = &"check"
+frame = 3
+frame_progress = 1.0

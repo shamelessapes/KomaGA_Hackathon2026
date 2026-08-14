@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://3sukycq3n4ul"]
+
+[ext_resource type="Texture2D" uid="uid://bpcp4oshu50nx" path="res://image/monster_img/5_l.png" id="1_33ned"]
+[ext_resource type="Script" uid="uid://duggatdhuok1p" path="res://gd/monster_5.gd" id="1_hja2v"]
+[ext_resource type="Texture2D" uid="uid://b58j3qjrisf7l" path="res://image/monster_img/5_r.png" id="2_hja2v"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jf55t"]
+animations = [{
+"frames": [{
+"duration": 2.5,
+"texture": ExtResource("1_33ned")
+}, {
+"duration": 2.5,
+"texture": ExtResource("2_hja2v")
+}, {
+"duration": 2.5,
+"texture": ExtResource("1_33ned")
+}, {
+"duration": 2.5,
+"texture": ExtResource("2_hja2v")
+}],
+"loop": false,
+"name": &"check",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_33ned")
+}],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_hja2v")
+}],
+"loop": true,
+"name": &"right",
+"speed": 5.0
+}]
+
+[node name="5_snake" type="CharacterBody2D" groups=["monster"]]
+script = ExtResource("1_hja2v")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
+position = Vector2(191, 214)
+scale = Vector2(0.0664876, 0.0686849)
+sprite_frames = SubResource("SpriteFrames_jf55t")
+animation = &"check"

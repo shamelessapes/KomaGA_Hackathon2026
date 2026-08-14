@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://cnxli75fxwu4c"]
+
+[ext_resource type="Texture2D" uid="uid://cxqbg4o1lb2fu" path="res://image/monster_img/6_l.png" id="1_f33l1"]
+[ext_resource type="Script" uid="uid://btatqm1v2u4n6" path="res://gd/monster_6.gd" id="1_q0ta6"]
+[ext_resource type="Texture2D" uid="uid://cc3hrfdupry5u" path="res://image/monster_img/6_r.png" id="2_q0ta6"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jf55t"]
+animations = [{
+"frames": [{
+"duration": 2.5,
+"texture": ExtResource("1_f33l1")
+}, {
+"duration": 2.5,
+"texture": ExtResource("2_q0ta6")
+}, {
+"duration": 2.5,
+"texture": ExtResource("1_f33l1")
+}, {
+"duration": 2.5,
+"texture": ExtResource("2_q0ta6")
+}],
+"loop": false,
+"name": &"check",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_f33l1")
+}],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_q0ta6")
+}],
+"loop": true,
+"name": &"right",
+"speed": 5.0
+}]
+
+[node name="6_food" type="CharacterBody2D" groups=["monster"]]
+script = ExtResource("1_q0ta6")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
+position = Vector2(191, 214)
+scale = Vector2(0.0664876, 0.0686849)
+sprite_frames = SubResource("SpriteFrames_jf55t")
+animation = &"right"

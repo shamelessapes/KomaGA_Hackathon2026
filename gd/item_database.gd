@@ -53,6 +53,7 @@ func _register_default_items() -> void:
 	))
 
 
+
 ## 新規アイテムの登録API
 func register_item(item_data: ItemData) -> void:
 	_items[item_data.id] = item_data
