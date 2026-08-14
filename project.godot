@@ -20,6 +20,9 @@ config/icon="uid://dcnhinfv6k8sb"
 Global="*res://gd/global.gd"
 ItemDatabase="*res://gd/item_database.gd"
 InventoryManager="*res://gd/inventory_manager.gd"
+Daymanager="*res://gd/daymanager.gd"
+Phasemanager="*res://gd/phasemanager.gd"
+Scenetransition="*res://gd/Scenetransition.gd"
 
 [rendering]
 

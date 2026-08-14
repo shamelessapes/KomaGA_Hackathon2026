@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://cu1qa38vy3vaq"]
+
+[ext_resource type="Script" uid="uid://c6vw5sm3540wp" path="res://control.gd" id="1_xaqd8"]
+
+[node name="day label" type="Node2D"]
+
+[node name="world" type="Node2D" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_xaqd8")
+
+[node name="Label" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
