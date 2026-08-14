@@ -15,7 +15,21 @@ class ItemData:
 	var world_scale: Vector2 = Vector2(1.0, 1.0)
 	var effect_handler: Callable = Callable()
 
-	func _init(p_id: String, p_name: String, p_description: String, p_usable: bool = true, p_stackable: bool = false, p_max_stack: int = 1, p_icon: Texture2D = null, p_effect: Callable = Callable(), p_world_scale: Vector2 = Vector2(1.0, 1.0)):
+	## アイテムのカテゴリ一覧 (モンスター弱点判定用: 音, 匂い, 動く, 温度, 食べ物, 生き物)
+	var categories: Array[String] = []
+
+	func _init(
+		p_id: String,
+		p_name: String,
+		p_description: String,
+		p_usable: bool = true,
+		p_stackable: bool = false,
+		p_max_stack: int = 1,
+		p_icon: Texture2D = null,
+		p_effect: Callable = Callable(),
+		p_world_scale: Vector2 = Vector2(1.0, 1.0),
+		p_categories: Array[String] = []
+	):
 		id = p_id
 		name = p_name
 		description = p_description
@@ -25,7 +39,20 @@ class ItemData:
 		icon = p_icon
 		effect_handler = p_effect
 		world_scale = p_world_scale
+		categories = p_categories
 
+	## 指定カテゴリを持っているか判定
+	func has_category(category_name: String) -> bool:
+		return category_name in categories
+
+
+# 有効なカテゴリ定数定義
+const CATEGORY_SOUND: String = "音"
+const CATEGORY_SMELL: String = "匂い"
+const CATEGORY_MOTION: String = "動く"
+const CATEGORY_TEMPERATURE: String = "温度"
+const CATEGORY_FOOD: String = "食べ物"
+const CATEGORY_CREATURE: String = "生き物"
 
 # アイテムデータベース辞書 [id: String, ItemData]
 var _items: Dictionary = {}
@@ -39,7 +66,7 @@ func _register_default_items() -> void:
 	# デフォルトプレースホルダーアイコンの作成（アイコン画像未設定時に使用）
 	var _placeholder_tex = _create_placeholder_icon()
 
-	# 1. テストアイテム
+	# 1. テストアイテム (カテゴリなし)
 	register_item(ItemData.new(
 		"godot_kun",
 		"Godotくん",
@@ -49,7 +76,8 @@ func _register_default_items() -> void:
 		99,
 		preload("res://image/icon.svg"),
 		func(_user, _target): print("【効果実行】Godotくんを使用した。何も起こらない。"),
-		Vector2(0.5, 0.5) 
+		Vector2(0.5, 0.5),
+		[]
 	))
 
 

@@ -49,6 +49,7 @@ func _ready() -> void:
 	Phasemanager.search_phase_ended.connect(_on_search_phase_ended)
 	Phasemanager.hide_phase_ended.connect(_on_hide_phase_ended)
 	Daymanager.day_changed.connect(_on_day_changed)
+	spawn_current_day_monster()
 	_connect_monster_exit_signals()
 	_show_day_text()
 	Phasemanager.start_search_phase()
@@ -126,6 +127,38 @@ func _on_monster_exited() -> void:
 
 func _on_day_changed(_new_day: int) -> void:
 	_show_day_text()
+	spawn_current_day_monster()
+
+
+## 現在の日数に応じたモンスターを PathFollow2D 配下に動的生成する
+func spawn_current_day_monster() -> void:
+	var path_follow = get_node_or_null("Path2D/PathFollow2D")
+	if path_follow == null:
+		return
+
+	# PathFollow の進行度をリセット
+	path_follow.progress_ratio = 0.0
+
+	# 既存の monster グループノードがあれば削除
+	for child in path_follow.get_children():
+		if child.is_in_group("monster"):
+			child.queue_free()
+
+	var day = Daymanager.current_day
+	var monster_scene_path = "res://tscn/monster/monster_%d.tscn" % day
+	if not ResourceLoader.exists(monster_scene_path):
+		print("[Byousitsu] モンスターシーンが存在しません: ", monster_scene_path)
+		return
+
+	var monster_scene = load(monster_scene_path) as PackedScene
+	if monster_scene:
+		var monster_instance = monster_scene.instantiate()
+		if monster_instance is Node2D:
+			(monster_instance as Node2D).position = Vector2(-221.876, -249.021)
+		path_follow.add_child(monster_instance)
+		if not monster_instance.tree_exited.is_connected(_on_monster_exited):
+			monster_instance.tree_exited.connect(_on_monster_exited)
+		print("[Byousitsu] %d 日目のモンスター (%s) を生成しました" % [day, monster_instance.name])
 
 
 func _show_day_text() -> void:
