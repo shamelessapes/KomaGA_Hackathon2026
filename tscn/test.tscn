@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://bnou3qhapvnvu"]
+
+[ext_resource type="Script" uid="uid://c6vw5sm3540wp" path="res://gd/control.gd" id="1_8uh7m"]
+[ext_resource type="Script" uid="uid://cnsi72bxrxb75" path="res://gd/test.gd" id="2_6uqi0"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchor_right = 0.035
+anchor_bottom = 0.062
+offset_right = -0.32
+offset_bottom = -0.176003
+script = ExtResource("1_8uh7m")
+
+[node name="Label" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Node" type="Node" parent="."]
+script = ExtResource("2_6uqi0")

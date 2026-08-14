@@ -1,10 +1,12 @@
-[gd_scene load_steps=5 format=3 uid="uid://c4gworhocjf57"]
+[gd_scene load_steps=6 format=3 uid="uid://c4gworhocjf57"]
 
 [ext_resource type="Script" uid="uid://oxsmcyepmmx" path="res://gd/inventory_ui.gd" id="1_inventoryui"]
 [ext_resource type="PackedScene" uid="uid://ct3l0lv3je581" path="res://tscn/item_tooltip.tscn" id="2_tooltip"]
 [ext_resource type="Script" uid="uid://d1agehc0n68yu" path="res://gd/drop_zone.gd" id="3_dropzone"]
+[ext_resource type="FontFile" uid="uid://00a5g5gvlt66" path="res://font/shippori3/ShipporiMincho-OTF-Bold.otf" id="3_ehv83"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_qd42w"]
+font = ExtResource("3_ehv83")
 font_size = 25
 font_color = Color(1, 1, 0, 1)
 outline_size = 13
@@ -25,8 +27,11 @@ mouse_filter = 1
 script = ExtResource("3_dropzone")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
-offset_right = 240.0
-offset_bottom = 110.0
+anchors_preset = -1
+anchor_right = 0.208
+anchor_bottom = 0.17
+offset_right = 0.384003
+offset_bottom = -0.160004
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16

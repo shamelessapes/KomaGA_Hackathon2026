@@ -6,6 +6,11 @@ extends Node2D
 ## プレイヤーからアイテムまでの最大取得許容距離
 @export var item_pickup_distance: float = 100.0
 
+## Inspector から探索フェーズの秒数を変更できる設定
+@export_range(0.1, 600.0, 0.1, "suffix:s") var search_phase_duration: float = 60.0
+@export_range(0.0, 10.0, 0.1, "suffix:s") var day_display_duration: float = 3.0
+@export_range(0.0, 5.0, 0.1, "suffix:s") var day_display_fade_duration: float = 0.5
+
 
 ## Monster回避の検出半径
 @export var monster_avoid_radius: float = 50.0
@@ -31,10 +36,22 @@ var pre_hide_player_position: Vector2 = Vector2.ZERO
 @onready var question_label: Label = $HideUI/HideConfirmationUI/QuestionLabel
 @onready var yes_button: Button = $HideUI/HideConfirmationUI/YesButton
 @onready var no_button: Button = $HideUI/HideConfirmationUI/NoButton
+@onready var day_label: Label = $DayUI/DayLabel
+
+var _day_label_tween: Tween
+var _day_transition_in_progress := false
 
 
 func _ready() -> void:
 	Global.fade_in(Color.BLACK)
+	# The scene owns the playable phase flow; the manager only keeps the state/timer.
+	Phasemanager.search_phase_duration = search_phase_duration
+	Phasemanager.search_phase_ended.connect(_on_search_phase_ended)
+	Phasemanager.hide_phase_ended.connect(_on_hide_phase_ended)
+	Daymanager.day_changed.connect(_on_day_changed)
+	_connect_monster_exit_signals()
+	_show_day_text()
+	Phasemanager.start_search_phase()
 	
 	# ボタンシグナルの接続
 	if yes_button:
@@ -80,6 +97,46 @@ func _handle_right_click_interaction(click_pos: Vector2) -> void:
 		var distance: float = player.global_position.distance_to(clicked_area.global_position)
 		if distance <= hide_distance:
 			select_hide_point(clicked_area)
+
+
+func _on_search_phase_ended() -> void:
+	Phasemanager.start_hide_phase()
+
+
+func _on_hide_phase_ended() -> void:
+	if _day_transition_in_progress:
+		return
+	_day_transition_in_progress = true
+	await Scenetransition.change_day()
+	_day_transition_in_progress = false
+	Phasemanager.start_search_phase()
+
+
+func _connect_monster_exit_signals() -> void:
+	for monster in get_tree().get_nodes_in_group("monster"):
+		if not monster.tree_exited.is_connected(_on_monster_exited):
+			monster.tree_exited.connect(_on_monster_exited)
+
+
+func _on_monster_exited() -> void:
+	if Phasemanager.current_phase == Phasemanager.Phase.HIDE:
+		print("[Byousitsu] 鬼が退出しました。翌日に切り替えます")
+		Phasemanager.end_hide_phase()
+
+
+func _on_day_changed(_new_day: int) -> void:
+	_show_day_text()
+
+
+func _show_day_text() -> void:
+	day_label.text = Daymanager.get_day_display_text()
+	day_label.modulate.a = 0.0
+	if _day_label_tween and _day_label_tween.is_valid():
+		_day_label_tween.kill()
+	_day_label_tween = create_tween()
+	_day_label_tween.tween_property(day_label, "modulate:a", 1.0, day_display_fade_duration)
+	_day_label_tween.tween_interval(day_display_duration)
+	_day_label_tween.tween_property(day_label, "modulate:a", 0.0, day_display_fade_duration)
 
 
 ## アイテム拾い処理

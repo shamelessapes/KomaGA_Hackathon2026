@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=18 format=3 uid="uid://ysfb2agjf0a3"]
 
 [ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://gd/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://byk1bgkla1nj8" path="res://image/3.png" id="1_t0s2g"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://dnt4r8raaprhd" path="res://gd/camera_2d.gd" id="3_iisva"]
 [ext_resource type="Texture2D" uid="uid://b5460o1hithmm" path="res://image/black_window.png" id="5_rrgwt"]
 [ext_resource type="PackedScene" uid="uid://c4gworhocjf57" path="res://tscn/inventory_ui.tscn" id="6_inventoryui"]
+[ext_resource type="FontFile" uid="uid://00a5g5gvlt66" path="res://font/shippori3/ShipporiMincho-OTF-Bold.otf" id="6_y7g3s"]
 [ext_resource type="PackedScene" uid="uid://cmu63tmr4jaqe" path="res://tscn/world_item.tscn" id="7_worlditem"]
 [ext_resource type="PackedScene" uid="uid://bpvo2tmpqndec" path="res://tscn/monster_1.tscn" id="8_monster"]
 
@@ -32,17 +33,24 @@ height = 166.497
 [sub_resource type="LabelSettings" id="LabelSettings_mw5w4"]
 font_size = 30
 
+[sub_resource type="LabelSettings" id="LabelSettings_y7g3s"]
+font = ExtResource("6_y7g3s")
+font_size = 39
+shadow_size = 32
+shadow_color = Color(0, 0, 0, 1)
+
 [sub_resource type="Curve2D" id="Curve2D_rrgwt"]
 _data = {
 "points": PackedVector2Array(0, 0, 0, 0, -284.8, -8.8, 0, 0, 0, 0, -92, 48.8, 0, 0, 0, 0, 120.8, -33.6, -23.4821, -27.5463, 23.4821, 27.5463, 128.8, 35.2, -21.8182, 0.661157, 21.8182, -0.661157, 228.8, 97.6, 0, 0, 0, 0, 376, 41.6, 0, 0, 0, 0, 279.2, 156, 0, 0, 0, 0, 94.4, 284.8, 0, 0, 0, 0, 144, 197.6, 0, 0, 0, 0, 74.4, 152.8, 0, 0, 0, 0, -95.2, 168.8, 0, 0, 0, 0, -54.4, 94.4, 0, 0, 0, 0, -192, 63.2, 0, 0, 0, 0, -323.2, 108.8, 0, 0, 0, 0, -286.4, -5.59999)
 }
 point_count = 15
 
-[node name="Node2D" type="Node2D"]
+[node name="Node2D2" type="Node2D"]
 position = Vector2(576, 324)
 scale = Vector2(1.25, 1.25)
 script = ExtResource("1_fd7ky")
 hide_distance = 200.0
+search_phase_duration = 20.0
 metadata/_edit_lock_ = true
 
 [node name="background" type="Sprite2D" parent="."]
@@ -201,6 +209,7 @@ offset_right = -866.0
 offset_bottom = -354.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_fonts/font = ExtResource("6_y7g3s")
 theme_override_font_sizes/font_size = 24
 text = "隠れる？"
 label_settings = SubResource("LabelSettings_mw5w4")
@@ -219,6 +228,7 @@ offset_right = -411.0
 offset_bottom = -348.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_fonts/font = ExtResource("6_y7g3s")
 theme_override_font_sizes/font_size = 30
 text = "はい"
 
@@ -235,8 +245,31 @@ offset_right = -316.0
 offset_bottom = -348.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_fonts/font = ExtResource("6_y7g3s")
 theme_override_font_sizes/font_size = 30
 text = "いいえ"
+
+[node name="DayUI" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="DayLabel" type="Label" parent="DayUI"]
+anchors_preset = -1
+anchor_left = 0.835
+anchor_top = 0.037
+anchor_right = 0.979
+anchor_bottom = 0.099
+offset_left = 0.0799561
+offset_top = 0.0240002
+offset_right = 0.192017
+offset_bottom = -0.152008
+grow_horizontal = 0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 28
+text = "一夜目"
+label_settings = SubResource("LabelSettings_y7g3s")
+horizontal_alignment = 2
 
 [node name="InventoryUI" parent="." instance=ExtResource("6_inventoryui")]
 

@@ -20,14 +20,20 @@ func start_search_phase() -> void:
 	phase_changed.emit(current_phase)
 	print("[PhaseManager] 探索フェーズ開始（%s秒）" % search_phase_duration)
 
-func _process(delta: float) -> void:
+var _print_timer := 0.0
+
+func _process(delta):
 	if current_phase == Phase.SEARCH and _timer_active:
 		_time_left -= delta
-		print("[PhaseManager] 残り時間: %.1f秒" % _time_left)  # デバッグ用（実プレイでは非表示）
+		_print_timer += delta
+
+		if _print_timer >= 1.0:
+			_print_timer = 0.0
+			print("[PhaseManager] 残り時間: %.1f秒" % _time_left)
+
 		if _time_left <= 0.0:
 			_timer_active = false
 			search_phase_ended.emit()
-			print("[PhaseManager] 探索フェーズ終了")
 
 func start_hide_phase() -> void:
 	current_phase = Phase.HIDE

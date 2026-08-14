@@ -19,6 +19,11 @@ var checkpoints = [
 ]
 
 func _ready():
+	# Keep the monster outside the room during the search phase.
+	visible = false
+	while Phasemanager.current_phase != Phasemanager.Phase.HIDE:
+		await Phasemanager.phase_changed
+	visible = true
 	last_position = global_position
 	var path2d = path_follow.get_parent()
 	var curve_length = path2d.curve.get_baked_length()
