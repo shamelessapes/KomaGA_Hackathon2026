@@ -28,6 +28,7 @@ texture = ExtResource("4_rnxbf")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
+anchors_preset = 0
 offset_right = 1152.0
 offset_bottom = 647.0
 grow_horizontal = 2
