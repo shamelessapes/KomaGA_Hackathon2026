@@ -59,6 +59,7 @@ func _ready() -> void:
 	_connect_monster_exit_signals()
 	_show_day_text()
 	Phasemanager.start_search_phase()
+	$tansaku.play()
 	
 	# ボタンシグナルの接続
 	if yes_button:
@@ -107,14 +108,20 @@ func _handle_right_click_interaction(click_pos: Vector2) -> void:
 
 
 func _on_search_phase_ended() -> void:
+	$tansaku.stop()
+	await Global.play_sound("res://sound/ドア閉.mp3")
 	Phasemanager.start_hide_phase()
+	$dokidoki.play()
 
 
 func _on_hide_phase_ended() -> void:
 	if is_captured or _day_transition_in_progress:
 		return
 	_day_transition_in_progress = true
+	$dokidoki.stop()
+	await Global.play_sound("res://sound/ドア閉.mp3")
 	Phasemanager.start_search_phase()
+	$tansaku.play()
 	await Scenetransition.change_day()
 	_day_transition_in_progress = false
 
@@ -490,6 +497,9 @@ func trigger_capture(monster: Node2D = null, delay: float = 0.0) -> void:
 	print("==================================================")
 	print("[捕獲発生] プレイヤーが捕まりました！ (Monster: %s)" % monster_name)
 	print("==================================================")
+	$tansaku.stop()
+	$dokidoki.stop()
+	Global.play_bgm_by_path("res://sound/ジャンプスケア.mp3",8.0)
 
 	# 1. 怪物の姿を画面に確実に表示させ、動きを即座に停止（怪物は画面に表示されたまま静止）
 	if monster:

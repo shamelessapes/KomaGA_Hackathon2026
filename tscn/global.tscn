@@ -5,3 +5,5 @@
 [node name="global" type="Node2D"]
 position = Vector2(576, 324)
 script = ExtResource("1_dfct3")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]

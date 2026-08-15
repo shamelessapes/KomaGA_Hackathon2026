@@ -28,6 +28,13 @@ func _ready():
 	fade_layer.add_child(color_rect)
 
 	call_deferred("_resize_color_rect")
+	
+	
+	
+	
+	
+	bgm_player = AudioStreamPlayer.new()
+	add_child(bgm_player)
 
 func _resize_color_rect():
 	await get_tree().process_frame
@@ -68,3 +75,85 @@ func fade_out(color: Color = Color.BLACK, _duration: float = 1.0) -> void:
 	# フェードアウト後はあえて表示を残す（シーン遷移などの直前用）
 	
 #＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+
+
+
+
+#＝＝＝＝＝　音のplayと再生　＝＝＝＝＝
+
+# =========================
+# BGM
+# =========================
+
+var bgm_player: AudioStreamPlayer
+var bgm_cache := {}
+
+
+
+# パスを指定してBGMを再生
+func play_bgm_by_path(path: String, volume_db: float = 0.0) -> void:
+	if not bgm_cache.has(path):
+		var stream = load(path)
+
+		if stream:
+			bgm_cache[path] = stream
+		else:
+			print("BGMファイルが見つかりません: ", path)
+			return
+
+	# 同じBGMがすでに再生中なら何もしない
+	if bgm_player.stream == bgm_cache[path] and bgm_player.playing:
+		return
+
+	bgm_player.stream = bgm_cache[path]
+	bgm_player.volume_db = volume_db
+	bgm_player.play()
+
+
+# BGMを停止
+func stop_bgm() -> void:
+	if bgm_player.playing:
+		bgm_player.stop()
+
+
+# BGMを一時停止
+func pause_bgm() -> void:
+	if bgm_player.playing:
+		bgm_player.stream_paused = true
+
+
+# BGMの一時停止を解除
+func resume_bgm() -> void:
+	if bgm_player.stream_paused:
+		bgm_player.stream_paused = false
+
+
+# =========================
+# SE / 効果音
+# =========================
+
+var se_cache := {}
+
+# パスを指定して効果音を再生し、鳴り終わるまで待機する関数
+func play_sound(path: String, volume_db: float = 0.0) -> void:
+	await play_se_by_path(path, volume_db)
+
+func play_se_by_path(path: String, volume_db: float = 0.0) -> void:
+	var stream: AudioStream
+	if se_cache.has(path):
+		stream = se_cache[path]
+	else:
+		stream = load(path) as AudioStream
+		if stream:
+			se_cache[path] = stream
+		else:
+			print("SEファイルが見つかりません: ", path)
+			return
+
+	var se_player = AudioStreamPlayer.new()
+	add_child(se_player)
+	se_player.stream = stream
+	se_player.volume_db = volume_db
+	se_player.play()
+	await se_player.finished
+	se_player.queue_free()

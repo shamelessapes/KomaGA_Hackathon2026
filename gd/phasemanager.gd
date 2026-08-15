@@ -19,6 +19,7 @@ func start_search_phase() -> void:
 	_timer_active = true
 	phase_changed.emit(current_phase)
 	print("[PhaseManager] 探索フェーズ開始（%s秒）" % search_phase_duration)
+	
 
 var _print_timer := 0.0
 

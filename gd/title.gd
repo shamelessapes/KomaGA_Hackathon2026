@@ -12,6 +12,8 @@ func _ready() -> void:
 	btn_byousitu.pressed.connect(_on_byousitu_pressed)
 	btn_asobi.pressed.connect(_on_asobi_pressed)
 	btn_taiin.pressed.connect(_on_taiin_pressed)
+	
+	$AudioStreamPlayer.play()
 
 
 func _on_nyuin_pressed() -> void:

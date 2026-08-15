@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=31 format=3 uid="uid://ysfb2agjf0a3"]
 
 [ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://gd/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://cj401lisesnjg" path="res://image/stegae_img/byousitsu.png" id="2_3qcvk"]
@@ -20,6 +20,8 @@
 [ext_resource type="Texture2D" uid="uid://yc7bvxrefo0e" path="res://image/stegae_img/bo2.png" id="13_61nng"]
 [ext_resource type="Texture2D" uid="uid://bl4qeeiol7i1e" path="res://image/stegae_img/bo1.png" id="14_l8o4p"]
 [ext_resource type="Texture2D" uid="uid://dr4ov5ajh758l" path="res://image/stegae_img/carten.png" id="15_uxcfu"]
+[ext_resource type="AudioStream" uid="uid://bdjh7wa6st84b" path="res://sound/探索環境音.mp3" id="21_l8o4p"]
+[ext_resource type="AudioStream" uid="uid://dtfhwuo0r3ex5" path="res://sound/心音.mp3" id="22_uxcfu"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_iisva"]
 vertices = PackedVector2Array(-258.688, 36.2031, -277.578, 31.5234, -41.6094, -41.0703, -40.4609, -7.02344, 511.391, 80.7188, 553.742, 93.3906, 363.969, 149.609, 403.852, 116.781, -263.477, 111.75, -280.563, 107.094, -254.477, 96.8672, -179.227, 80.8828, 61.0078, 239.383, 53.2969, 236.531, 119.203, 216.867, 187.594, 201.867, 147.82, 184.32, 108.422, 165.641, 148.359, 170.719, 338.281, 94.9297, 305.68, 115.758, -84.3203, 115.133, 42.2031, 15.6484, 28.1094, 140.547, 245.227, 71.4531, 312.82, 45.9375, 337.633, 56.0391, 156.141, 39.8438, 110.227, -11.6797, 154.203, 4.53906, -54.3438, 167.18, -83.0078, 153.57)
@@ -164,7 +166,6 @@ scale = Vector2(1.4, 1.4)
 texture = ExtResource("8_jd7u6")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="beds/bed4"]
-scale = Vector2(1, 1)
 shape = SubResource("CircleShape2D_iisva")
 metadata/_edit_lock_ = true
 
@@ -198,7 +199,6 @@ shape = SubResource("CircleShape2D_iisva")
 metadata/_edit_lock_ = true
 
 [node name="closets" type="Node2D" parent="."]
-scale = Vector2(1, 1)
 metadata/_edit_lock_ = true
 
 [node name="closet1" type="Area2D" parent="closets" groups=["hide_point"]]
@@ -213,7 +213,6 @@ texture = ExtResource("9_jd7u6")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="closets/closet1"]
 position = Vector2(6.10352e-05, 0)
-scale = Vector2(1, 1)
 shape = SubResource("CapsuleShape2D_rrgwt")
 metadata/_edit_lock_ = true
 
@@ -497,3 +496,13 @@ pivot_offset = Vector2(200, 200)
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="tansaku" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("21_l8o4p")
+volume_db = 4.0
+parameters/looping = true
+
+[node name="dokidoki" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("22_uxcfu")
+volume_db = 10.0
+parameters/looping = true

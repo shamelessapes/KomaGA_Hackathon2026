@@ -8,15 +8,49 @@ extends CharacterBody2D
 var target_position: Vector2
 var is_moving := false
 var is_hidden := false
+var footstep_player: AudioStreamPlayer
 
 func _ready():
 	print("Hello World")
 	add_to_group("player")
 	target_position = global_position
 
+	_init_footstep_sound()
 
 	agent.path_desired_distance = 4.0
 	agent.target_desired_distance = 8.0
+
+
+func _init_footstep_sound() -> void:
+	footstep_player = AudioStreamPlayer.new()
+	add_child(footstep_player)
+	var stream = load("res://sound/歩行.wav") as AudioStream
+	if stream:
+		footstep_player.stream = stream
+
+
+func _update_footstep_sound(should_play: bool) -> void:
+	if not is_inside_tree() or footstep_player == null:
+		return
+
+	var main_scene = get_tree().current_scene if get_tree() else null
+	var is_captured = main_scene and "is_captured" in main_scene and main_scene.is_captured
+
+	if should_play and is_moving and visible and not is_hidden and not is_captured and velocity != Vector2.ZERO:
+		if not footstep_player.playing:
+			footstep_player.play()
+	else:
+		if footstep_player.playing:
+			footstep_player.stop()
+
+
+func stop_walk_sound() -> void:
+	if footstep_player and footstep_player.playing:
+		footstep_player.stop()
+
+
+func _exit_tree() -> void:
+	stop_walk_sound()
 
 
 #　ーーーーー　マウスで移動　ーーーーー
@@ -34,12 +68,14 @@ func _unhandled_input(event):
 func _physics_process(_delta):
 	if is_hidden:
 		velocity = Vector2.ZERO
+		_update_footstep_sound(false)
 		return
 
 	if not is_moving:
 		velocity = Vector2.ZERO
 		update_idle_animation()
 		move_and_slide()
+		_update_footstep_sound(false)
 		return
 
 	if agent.is_navigation_finished():
@@ -47,6 +83,7 @@ func _physics_process(_delta):
 		velocity = Vector2.ZERO
 		update_idle_animation()
 		move_and_slide()
+		_update_footstep_sound(false)
 		return
 
 	var next_path_position = agent.get_next_path_position()
@@ -58,6 +95,8 @@ func _physics_process(_delta):
 	update_animation(direction)
 
 	move_and_slide()
+
+	_update_footstep_sound(true)
 	
 	
 #　ーーーーー　アニメーション制御　ーーーーー
@@ -94,7 +133,9 @@ func set_hidden_state(hidden: bool, hide_position: Vector2 = Vector2.ZERO) -> vo
 		velocity = Vector2.ZERO
 		global_position = hide_position
 		visible = false
+		_update_footstep_sound(false)
 	else:
 		is_moving = false
 		target_position = global_position
 		visible = true
+		_update_footstep_sound(false)

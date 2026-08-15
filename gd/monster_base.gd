@@ -25,6 +25,7 @@ extends CharacterBody2D
 @onready var path_follow: PathFollow2D = get_parent() as PathFollow2D
 
 var last_position: Vector2
+var walk_audio_player: AudioStreamPlayer
 
 ## 巡回チェックポイント定義
 var checkpoints: Array = [
@@ -37,6 +38,7 @@ var checkpoints: Array = [
 	{"ratio": 0.9747, "check": true},
 	{"ratio": 1.00, "check": true},
 ]
+
 
 func _ready() -> void:
 	# 初期位置オフセットの適用
@@ -57,7 +59,7 @@ func _ready() -> void:
 		var new_phase = await Phasemanager.phase_changed
 		if new_phase == Phasemanager.Phase.HIDE:
 			break
-
+	
 	set_monster_visible(true)
 	last_position = global_position
 
@@ -103,6 +105,7 @@ func _move_to_ratio(target_ratio: float, curve_length: float) -> void:
 		var main_scene = get_tree().current_scene
 		if main_scene and "is_captured" in main_scene and main_scene.is_captured:
 			return
+
 
 		var delta = get_physics_process_delta_time()
 		path_follow.progress_ratio += (speed * delta) / curve_length
@@ -158,6 +161,10 @@ func set_monster_visible(is_vis: bool) -> void:
 	visible = is_vis
 	if sprite:
 		sprite.visible = is_vis
+
+
+
+
 
 
 ## モンスターの見た目上の中心座標を取得
