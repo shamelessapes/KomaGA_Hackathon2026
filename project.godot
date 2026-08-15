@@ -23,6 +23,7 @@ InventoryManager="*res://gd/inventory_manager.gd"
 Daymanager="*res://gd/daymanager.gd"
 Phasemanager="*res://gd/phasemanager.gd"
 Scenetransition="*res://gd/Scenetransition.gd"
+SaveManager="*res://gd/save_manager.gd"
 
 [rendering]
 

@@ -50,16 +50,25 @@ var _day_transition_in_progress := false
 
 func _ready() -> void:
 	Global.fade_in(Color.BLACK)
+	is_captured = false
+	_day_transition_in_progress = false
 	# The scene owns the playable phase flow; the manager only keeps the state/timer.
 	Phasemanager.search_phase_duration = search_phase_duration
-	Phasemanager.search_phase_ended.connect(_on_search_phase_ended)
-	Phasemanager.hide_phase_ended.connect(_on_hide_phase_ended)
-	Daymanager.day_changed.connect(_on_day_changed)
+	Phasemanager.start_search_phase()
+
+	if not Phasemanager.search_phase_ended.is_connected(_on_search_phase_ended):
+		Phasemanager.search_phase_ended.connect(_on_search_phase_ended)
+	if not Phasemanager.hide_phase_ended.is_connected(_on_hide_phase_ended):
+		Phasemanager.hide_phase_ended.connect(_on_hide_phase_ended)
+	if not Daymanager.day_changed.is_connected(_on_day_changed):
+		Daymanager.day_changed.connect(_on_day_changed)
+
 	spawn_current_day_monster()
 	_connect_monster_exit_signals()
 	_show_day_text()
-	Phasemanager.start_search_phase()
 	$tansaku.play()
+	if SaveManager:
+		SaveManager.save_game()
 	
 	# ボタンシグナルの接続
 	if yes_button:

@@ -23,6 +23,12 @@ var _recipes: Dictionary = {}
 func _ready() -> void:
 	_init_slots()
 	_register_default_recipes()
+	inventory_updated.connect(_on_inventory_updated_autosave)
+
+
+func _on_inventory_updated_autosave() -> void:
+	if SaveManager:
+		SaveManager.save_game()
 
 
 ## スロットの初期化

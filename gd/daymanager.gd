@@ -24,6 +24,8 @@ func advance_day() -> void:
 	current_day += 1
 	day_changed.emit(current_day)
 	print("[DayManager] 日付変更 → ", get_day_status_name())
+	if SaveManager:
+		SaveManager.save_game()
 
 func set_day(day: int) -> void:
 	current_day = clampi(day, 1, MAX_DAY)
