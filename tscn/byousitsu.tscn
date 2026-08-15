@@ -1,11 +1,10 @@
-[gd_scene load_steps=32 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=31 format=3 uid="uid://ysfb2agjf0a3"]
 
 [ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://gd/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://cj401lisesnjg" path="res://image/stegae_img/byousitsu.png" id="2_3qcvk"]
 [ext_resource type="PackedScene" uid="uid://bpul3kar1uylb" path="res://tscn/player.tscn" id="2_t0s2g"]
 [ext_resource type="Script" uid="uid://dnt4r8raaprhd" path="res://gd/camera_2d.gd" id="3_iisva"]
 [ext_resource type="Texture2D" uid="uid://1dpuf5nn5ot2" path="res://image/stegae_img/door.png" id="3_nroi8"]
-[ext_resource type="Texture2D" uid="uid://qm8l117okpm3" path="res://image/stegae_img/otehon.png" id="4_yyvm4"]
 [ext_resource type="Texture2D" uid="uid://b5460o1hithmm" path="res://image/black_window.png" id="5_rrgwt"]
 [ext_resource type="PackedScene" uid="uid://c4gworhocjf57" path="res://tscn/inventory_ui.tscn" id="6_inventoryui"]
 [ext_resource type="FontFile" uid="uid://00a5g5gvlt66" path="res://font/shippori3/ShipporiMincho-OTF-Bold.otf" id="6_y7g3s"]
@@ -67,7 +66,8 @@ position = Vector2(576, 324)
 scale = Vector2(1.25, 1.25)
 script = ExtResource("1_fd7ky")
 hide_distance = 200.0
-search_phase_duration = 5.0
+item_pickup_distance = 150.0
+search_phase_duration = 30.0
 day_display_fade_duration = 2.0
 metadata/_edit_lock_ = true
 
@@ -83,13 +83,6 @@ z_index = -10
 position = Vector2(-8.80002, -11.2)
 scale = Vector2(1.33236, 1.30975)
 texture = ExtResource("3_nroi8")
-metadata/_edit_lock_ = true
-
-[node name="otehon" type="Sprite2D" parent="."]
-visible = false
-modulate = Color(1, 1, 1, 0.305882)
-scale = Vector2(1.4, 1.4)
-texture = ExtResource("4_yyvm4")
 metadata/_edit_lock_ = true
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
@@ -300,18 +293,21 @@ texture = ExtResource("12_61nng")
 metadata/_edit_lock_ = true
 
 [node name="bo1" type="Sprite2D" parent="sonota_objects"]
+modulate = Color(1, 1, 1, 0.372549)
 z_index = 5
 position = Vector2(-369.143, -99.4286)
 texture = ExtResource("13_61nng")
 metadata/_edit_lock_ = true
 
 [node name="bo2" type="Sprite2D" parent="sonota_objects"]
+modulate = Color(1, 1, 1, 0.372549)
 z_index = 5
 position = Vector2(-198.286, -47.4286)
 texture = ExtResource("13_61nng")
 metadata/_edit_lock_ = true
 
 [node name="bo3" type="Sprite2D" parent="sonota_objects"]
+modulate = Color(1, 1, 1, 0.372549)
 z_index = 5
 position = Vector2(-16, 2.85715)
 texture = ExtResource("13_61nng")
@@ -458,21 +454,82 @@ horizontal_alignment = 2
 
 [node name="Items" type="Node2D" parent="."]
 
-[node name="godot_kun" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
-position = Vector2(-100, 100)
+[node name="fuku" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(542.4, 67.2)
 scale = Vector2(0.5, 0.5)
+item_id = "fuku"
 
-[node name="godot_kun2" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
-position = Vector2(-9.60001, -44.8)
+[node name="pacemaker" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(-342.4, 10.4)
 scale = Vector2(0.5, 0.5)
+item_id = "pacemaker"
 
-[node name="godot_kun3" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
-position = Vector2(177.6, 64)
+[node name="tv" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(644, -44)
 scale = Vector2(0.5, 0.5)
+item_id = "tv"
 
-[node name="godot_kun4" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
-position = Vector2(171.2, 148)
+[node name="remokon" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(217.6, 147.2)
 scale = Vector2(0.5, 0.5)
+item_id = "remokon"
+
+[node name="doraiya-" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(9.60001, -111.2)
+scale = Vector2(0.5, 0.5)
+item_id = "doraiya-"
+
+[node name="bloodpack" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(37.6, -62.4)
+scale = Vector2(0.5, 0.5)
+item_id = "bloodpack"
+
+[node name="medicine" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(258.4, -8)
+scale = Vector2(0.5, 0.5)
+item_id = "medicine"
+
+[node name="hasami" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(156, 73.6)
+scale = Vector2(0.5, 0.5)
+item_id = "hasami"
+
+[node name="aruko-ru" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(136.8, 216)
+scale = Vector2(0.5, 0.5)
+item_id = "aruko-ru"
+
+[node name="nursecall" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(336, -64.8)
+scale = Vector2(0.5, 0.5)
+item_id = "nurcecall"
+
+[node name="ketuatu" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(-152, -71.2)
+scale = Vector2(0.5, 0.5)
+item_id = "ketuatu"
+
+[node name="konsento" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(232.8, -5.6)
+rotation = 0.349066
+scale = Vector2(0.8, 0.8)
+skew = -0.349066
+item_id = "konsento"
+
+[node name="kudamono" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(488, 12.8)
+scale = Vector2(0.5, 0.5)
+item_id = "kudamono"
+
+[node name="food" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(374.4, 71.2)
+scale = Vector2(0.5, 0.5)
+item_id = "food"
+
+[node name="horeizai" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
+position = Vector2(374.4, 71.2)
+scale = Vector2(0.5, 0.5)
+item_id = "horeizai"
 
 [node name="Path2D" type="Path2D" parent="."]
 curve = SubResource("Curve2D_rrgwt")
@@ -513,3 +570,9 @@ parameters/looping = true
 stream = ExtResource("22_uxcfu")
 volume_db = 10.0
 parameters/looping = true
+
+[node name="nioi" type="Sprite2D" parent="."]
+position = Vector2(80, -274.4)
+scale = Vector2(1.65208, 2.12963)
+texture = ExtResource("5_rrgwt")
+metadata/_edit_lock_ = true

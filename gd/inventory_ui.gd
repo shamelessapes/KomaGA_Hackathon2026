@@ -92,14 +92,21 @@ func _on_slot_unhovered() -> void:
 		tooltip.hide_tooltip()
 
 
+var _message_tween: Tween
+
+
 ## 画面上に短いメッセージ（通知）を表示
 func _show_message(msg: String) -> void:
+	if msg == "":
+		return
 	print("【InventoryUI Notification】", msg)
 	if message_label:
 		message_label.text = msg
 		message_label.modulate.a = 1.0
-		var tween = create_tween()
-		tween.tween_property(message_label, "modulate:a", 0.0, 2.5).set_delay(1.0)
+		if _message_tween and _message_tween.is_valid():
+			_message_tween.kill()
+		_message_tween = create_tween()
+		_message_tween.tween_property(message_label, "modulate:a", 0.0, 2.5).set_delay(1.0)
 
 
 ## 画面上（UI外）にドロップされた際アイテムをマップ上に捨てる処理
@@ -139,6 +146,9 @@ func handle_item_drop_to_world(slot_index: int, item_id: String) -> void:
 		current_scene.add_child(world_item)
 
 	world_item.global_position = final_drop_pos
+
+	if current_scene.has_method("_setup_node_hover_outline"):
+		current_scene._setup_node_hover_outline(world_item)
 
 
 	var item_data = ItemDatabase.get_item(item_id)

@@ -43,6 +43,7 @@ var pre_hide_player_position: Vector2 = Vector2.ZERO
 @onready var yes_button: Button = $HideUI/HideConfirmationUI/YesButton
 @onready var no_button: Button = $HideUI/HideConfirmationUI/NoButton
 @onready var day_label: Label = $DayUI/DayLabel
+@onready var nioi_sprite: Sprite2D = get_node_or_null("nioi") as Sprite2D
 
 var _day_label_tween: Tween
 var _day_transition_in_progress := false
@@ -52,6 +53,9 @@ func _ready() -> void:
 	Global.fade_in(Color.BLACK)
 	is_captured = false
 	_day_transition_in_progress = false
+	if nioi_sprite:
+		nioi_sprite.hide()
+
 	# The scene owns the playable phase flow; the manager only keeps the state/timer.
 	Phasemanager.search_phase_duration = search_phase_duration
 	Phasemanager.start_search_phase()
@@ -62,6 +66,8 @@ func _ready() -> void:
 		Phasemanager.hide_phase_ended.connect(_on_hide_phase_ended)
 	if not Daymanager.day_changed.is_connected(_on_day_changed):
 		Daymanager.day_changed.connect(_on_day_changed)
+	if InventoryManager and not InventoryManager.item_used.is_connected(_on_item_used):
+		InventoryManager.item_used.connect(_on_item_used)
 
 	spawn_current_day_monster()
 	_connect_monster_exit_signals()
@@ -78,6 +84,9 @@ func _ready() -> void:
 		
 	# UIの初期状態は非表示
 	hide_confirmation_ui()
+
+	# item および hide_point グループへのホバー白枠演出初期化
+	_setup_all_hover_outlines()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -150,8 +159,17 @@ func _on_monster_exited() -> void:
 
 
 func _on_day_changed(_new_day: int) -> void:
+	if nioi_sprite:
+		nioi_sprite.hide()
 	_show_day_text()
 	spawn_current_day_monster()
+
+
+func _on_item_used(item_id: String, _slot_index: int) -> void:
+	var item_data = ItemDatabase.get_item(item_id)
+	if item_data and (item_data.has_category("匂い") or item_data.has_category(ItemDatabase.CATEGORY_SMELL)):
+		if nioi_sprite:
+			nioi_sprite.show()
 
 
 ## 現在の日数に応じたモンスターを PathFollow2D 配下に動的生成する
@@ -196,7 +214,7 @@ func _show_day_text() -> void:
 	_day_label_tween.tween_property(day_label, "modulate:a", 0.0, day_display_fade_duration)
 
 
-## アイテム拾い処理
+## アイテム拾い・設置物インタラクション処理
 func _try_pickup_item(area: Area2D) -> void:
 	var item_node: Node = area.get_parent()
 	var item_id: String = ""
@@ -218,8 +236,14 @@ func _try_pickup_item(area: Area2D) -> void:
 	if distance > item_pickup_distance:
 		return
 
+	var item_data = ItemDatabase.get_item(item_id)
 
-	# アイテムノードのscaleを取得（transformの調整値の保持）
+	# 設置物カテゴリ判定
+	if item_data and (item_data.has_category("設置物") or item_data.has_category(ItemDatabase.CATEGORY_SETTIBUTSU) or item_data.settibutsu != ""):
+		_interact_with_settibutsu(item_data, area, item_node)
+		return
+
+	# 通常アイテムの拾い処理
 	var node_scale: Vector2 = Vector2.ONE
 	if item_node is Node2D and item_node != self:
 		node_scale = (item_node as Node2D).scale
@@ -232,6 +256,32 @@ func _try_pickup_item(area: Area2D) -> void:
 			item_node.queue_free()
 		else:
 			area.queue_free()
+
+
+## 設置物カテゴリの右クリックインタラクション
+func _interact_with_settibutsu(item_data: ItemDatabase.ItemData, area: Area2D, item_node: Node) -> void:
+	var required_item_id: String = item_data.settibutsu
+	if required_item_id == "":
+		# settibutsu 未設定時（tv や konsento 等）：右クリックしても何も起こらない
+		return
+
+	if InventoryManager == null:
+		return
+
+	# プレイヤーが settibutsu で指定された必要アイテムを所持しているか判定
+	if not InventoryManager.has_item(required_item_id):
+		# 未所持時：右クリックしても何も起こらない
+		return
+
+	# 必要アイテムを所持している場合：必要アイテムを1個消費（設置物自体は消去しない）
+	var consumed = InventoryManager.remove_item_by_id(required_item_id, 1)
+	if consumed:
+		var req_data = ItemDatabase.get_item(required_item_id)
+		var req_name = req_data.name if req_data else required_item_id
+		print("【設置物使用】設置物 '%s' を作動。必要アイテム '%s' を1個消費しました。" % [item_data.name, req_name])
+
+		# 後から設置物ごとの処理を追加できる拡張用フック呼び出し
+		ItemDatabase.execute_settibutsu_effect(item_data.id, required_item_id, player, item_node if item_node != self else area)
 
 
 
@@ -589,3 +639,130 @@ func trigger_capture(monster: Node2D = null, delay: float = 0.0) -> void:
 			push_error("[Byousitsu] シーン遷移に失敗しました (%s)。Error code: %d" % [target_scene_path, err])
 	else:
 		push_error("[Byousitsu] ツリー離脱により get_tree() が null のため遷移できませんでした。")
+
+
+# ========================================================
+# ホバー時スプライト画像発光・点滅（ピカピカ）シェーダー演出機能 (item / hide_point グループ対象)
+# ========================================================
+const FLASH_SHADER_CODE: String = """
+shader_type canvas_item;
+
+uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float flash_modifier : hint_range(0.0, 1.0) = 0.0;
+
+void fragment() {
+	vec4 color = texture(TEXTURE, UV);
+	if (color.a > 0.0) {
+		color.rgb = mix(color.rgb, flash_color.rgb, color.a * flash_modifier * 0.85);
+	}
+	COLOR = color;
+}
+"""
+
+var _flash_shader: Shader = null
+
+
+func _get_flash_shader_material() -> ShaderMaterial:
+	if _flash_shader == null:
+		_flash_shader = Shader.new()
+		_flash_shader.code = FLASH_SHADER_CODE
+
+	var mat = ShaderMaterial.new()
+	mat.shader = _flash_shader
+	mat.set_shader_parameter("flash_color", Color(1.0, 1.0, 1.0, 1.0))
+	mat.set_shader_parameter("flash_modifier", 0.0)
+	return mat
+
+
+func _setup_all_hover_outlines() -> void:
+	for node in get_tree().get_nodes_in_group("item"):
+		_setup_node_hover_outline(node)
+	for node in get_tree().get_nodes_in_group("hide_point"):
+		_setup_node_hover_outline(node)
+
+
+func _setup_node_hover_outline(target: Node) -> void:
+	if target == null:
+		return
+
+	var area: Area2D = null
+	if target is Area2D:
+		area = target as Area2D
+	else:
+		area = target.get_node_or_null("Area2D") as Area2D
+		if area == null:
+			for child in target.get_children():
+				if child is Area2D:
+					area = child as Area2D
+					break
+
+	if area == null:
+		return
+
+	var sprite: Sprite2D = _find_sprite_for_hover(target)
+	if sprite == null:
+		sprite = _find_sprite_for_hover(area)
+
+	if sprite == null:
+		return
+
+	_attach_blinking_shader_to_sprite(area, sprite)
+
+
+func _find_sprite_for_hover(node: Node) -> Sprite2D:
+	if node == null:
+		return null
+	if node is Sprite2D:
+		return node as Sprite2D
+	for child in node.get_children():
+		if child is Sprite2D:
+			return child as Sprite2D
+	if node.get_parent() and node.get_parent() != self:
+		for sibling in node.get_parent().get_children():
+			if sibling is Sprite2D:
+				return sibling as Sprite2D
+	return null
+
+
+func _attach_blinking_shader_to_sprite(area: Area2D, sprite: Sprite2D) -> void:
+	if area == null or sprite == null:
+		return
+
+	var mat: ShaderMaterial = _get_flash_shader_material()
+	var orig_material: Material = sprite.material
+
+	var state = {
+		"tween": null
+	}
+
+	var start_blink = func():
+		if not is_instance_valid(sprite):
+			return
+		if state["tween"] and (state["tween"] as Tween).is_valid():
+			(state["tween"] as Tween).kill()
+
+		sprite.material = mat
+		mat.set_shader_parameter("flash_modifier", 0.0)
+
+		var tween = sprite.create_tween().set_loops()
+		tween.tween_property(mat, "shader_parameter/flash_modifier", 0.85, 0.15).set_trans(Tween.TRANS_SINE)
+		tween.tween_property(mat, "shader_parameter/flash_modifier", 0.0, 0.15).set_trans(Tween.TRANS_SINE)
+		state["tween"] = tween
+
+	var stop_blink = func():
+		if state["tween"] and (state["tween"] as Tween).is_valid():
+			(state["tween"] as Tween).kill()
+			state["tween"] = null
+		if is_instance_valid(sprite):
+			mat.set_shader_parameter("flash_modifier", 0.0)
+			sprite.material = orig_material
+
+	if area.mouse_entered.is_connected(start_blink):
+		area.mouse_entered.disconnect(start_blink)
+	if area.mouse_exited.is_connected(stop_blink):
+		area.mouse_exited.disconnect(stop_blink)
+
+	area.mouse_entered.connect(start_blink)
+	area.mouse_exited.connect(stop_blink)
+
+	stop_blink.call()

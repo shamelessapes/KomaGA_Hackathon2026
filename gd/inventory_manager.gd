@@ -47,6 +47,10 @@ func can_add_item(item_id: String, count: int = 1) -> bool:
 	if item_data == null:
 		return false
 
+	# 設置物カテゴリのアイテムはスロットへの格納を拒否
+	if item_data.has_category("設置物") or item_data.has_category(ItemDatabase.CATEGORY_SETTIBUTSU):
+		return false
+
 	# スタック可能な場合、既存スロットへの追加余地をチェック
 	if item_data.stackable:
 		for slot in slots:
@@ -66,6 +70,11 @@ func can_add_item(item_id: String, count: int = 1) -> bool:
 func add_item(item_id: String, count: int = 1, item_scale: Vector2 = Vector2.ZERO) -> bool:
 	var item_data = ItemDatabase.get_item(item_id)
 	if item_data == null:
+		return false
+
+	# 設置物カテゴリのアイテムはスロットへの格納を拒否
+	if item_data.has_category("設置物") or item_data.has_category(ItemDatabase.CATEGORY_SETTIBUTSU):
+		print("【インベントリ拒否】設置物カテゴリのアイテム '%s' はスロットに格納できません。" % item_data.name)
 		return false
 
 	var final_scale: Vector2 = item_scale
@@ -109,6 +118,23 @@ func add_item(item_id: String, count: int = 1, item_scale: Vector2 = Vector2.ZER
 	return true
 
 
+## 指定のアイテムIDを所持しているか確認
+func has_item(item_id: String) -> bool:
+	for slot in slots:
+		if slot != null and typeof(slot) == TYPE_DICTIONARY and slot.get("item_id", "") == item_id and slot.get("count", 0) > 0:
+			return true
+	return false
+
+
+## 指定のアイテムIDを所持スロットから消費/削除
+func remove_item_by_id(item_id: String, count: int = 1) -> bool:
+	for i in range(max_slots):
+		var slot = slots[i]
+		if slot != null and typeof(slot) == TYPE_DICTIONARY and slot.get("item_id", "") == item_id:
+			return remove_item_at(i, count)
+	return false
+
+
 
 ## 空きスロットのインデックスを取得（なければ-1）
 func _find_empty_slot() -> int:
@@ -147,18 +173,20 @@ func use_item_at(slot_index: int, user: Node = null, target: Node = null) -> boo
 
 	var item_id: String = slot["item_id"]
 	var item_data = ItemDatabase.get_item(item_id)
-	if item_data == null or not item_data.usable:
+	if item_data == null:
 		return false
 
 	# 効果実行
 	var success = ItemDatabase.execute_item_effect(item_id, user, target)
 	if success:
-		inventory_message.emit("使用した: 【%s】" % item_data.name)
+		var effect_msg = ItemDatabase.get_item_effect_message(item_id)
+		if effect_msg != "":
+			inventory_message.emit(effect_msg)
 		item_used.emit(item_id, slot_index)
-		
-		# 使用後消費アイテムの場合、数を減らす（キーアイテム等は消費しない仕様にも拡張可）
-		# 現段階ではデモとしてすべて消費
-		remove_item_at(slot_index, 1)
+
+		# usable == true の場合のみアイテムを消費する
+		if item_data.usable:
+			remove_item_at(slot_index, 1)
 		return true
 
 	return false
@@ -185,8 +213,31 @@ func remove_item_at(slot_index: int, count: int = 1) -> bool:
 ## 将来的な合成システム拡張ポイント
 ## ----------------------------------------------------
 func _register_default_recipes() -> void:
-	# 例: 薬品A + 薬品B -> 中和剤 (将来用レシピ登録例)
-	register_recipe("medicine_a", "medicine_b", "neutralizer")
+	# 明示的デフォルトレシピの登録
+	register_recipe("bloodpack", "hasami", "kusai_ti")
+	register_recipe("fuku", "pacemaker", "migawari")
+
+	# ItemDatabase から gousei レシピを自動登録
+	if ItemDatabase:
+		for item_id in ItemDatabase._items:
+			var item_data = ItemDatabase._items[item_id]
+			if item_data and item_data.gousei != "":
+				_parse_and_register_gousei_string(item_data.gousei, item_data.id)
+
+
+func _parse_and_register_gousei_string(gousei_str: String, default_result_id: String) -> void:
+	# 書式: "item_a + item_b -> item_c" または "item_a + item_b"
+	var parts = gousei_str.split("->")
+	var ingredients_str = parts[0].strip_edges()
+	var result_id = default_result_id
+	if parts.size() > 1 and parts[1].strip_edges() != "":
+		result_id = parts[1].strip_edges()
+
+	var ingredients = ingredients_str.split("+")
+	if ingredients.size() == 2 and result_id != "":
+		var item_a = ingredients[0].strip_edges()
+		var item_b = ingredients[1].strip_edges()
+		register_recipe(item_a, item_b, result_id)
 
 
 ## 合成レシピの登録
@@ -195,6 +246,35 @@ func register_recipe(item_a: String, item_b: String, result_item: String) -> voi
 	var key2 = item_b + "+" + item_a
 	_recipes[key1] = result_item
 	_recipes[key2] = result_item
+	print("[InventoryManager] レシピ登録: '%s' + '%s' -> '%s'" % [item_a, item_b, result_item])
+
+
+## 2つのアイテムIDから合成結果を取得（動的フォールバック付き）
+func get_recipe_for_items(item_id_a: String, item_id_b: String) -> String:
+	if item_id_a == "" or item_id_b == "":
+		return ""
+
+	var key1 = item_id_a + "+" + item_id_b
+	if _recipes.has(key1):
+		return _recipes[key1]
+
+	var key2 = item_id_b + "+" + item_id_a
+	if _recipes.has(key2):
+		return _recipes[key2]
+
+	# _recipes に未登録の場合、ItemDatabase から動的にレシピを検索・登録
+	if ItemDatabase:
+		for res_id in ItemDatabase._items:
+			var item_data = ItemDatabase._items[res_id]
+			if item_data and item_data.gousei != "":
+				_parse_and_register_gousei_string(item_data.gousei, item_data.id)
+
+	if _recipes.has(key1):
+		return _recipes[key1]
+	if _recipes.has(key2):
+		return _recipes[key2]
+
+	return ""
 
 
 ## 2つのスロットの合成結果を取得（存在しなければ空文字）
@@ -204,19 +284,21 @@ func get_recipe_result(slot_a_index: int, slot_b_index: int) -> String:
 	if slot_a.is_empty() or slot_b.is_empty():
 		return ""
 
-	var key = slot_a["item_id"] + "+" + slot_b["item_id"]
-	return _recipes.get(key, "")
+	var id_a = slot_a.get("item_id", "")
+	var id_b = slot_b.get("item_id", "")
+	return get_recipe_for_items(id_a, id_b)
 
 
-## 2つのスロットのアイテムを合成する処理（将来のUI拡張用）
+## 2つのスロットのアイテムを合成する処理
 func combine_slots(slot_a_index: int, slot_b_index: int) -> bool:
 	var result_id = get_recipe_result(slot_a_index, slot_b_index)
 	if result_id == "":
-		inventory_message.emit("合成できません")
 		return false
 
 	remove_item_at(slot_a_index, 1)
 	remove_item_at(slot_b_index, 1)
 	add_item(result_id, 1)
-	inventory_message.emit("合成成功！【%s】を作成しました" % ItemDatabase.get_item(result_id).name)
+	var res_item = ItemDatabase.get_item(result_id)
+	var res_name = res_item.name if res_item else result_id
+	inventory_message.emit("合成成功！【%s】を作成しました" % res_name)
 	return true

@@ -91,10 +91,30 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	return { "from_slot_index": slot_index, "item_id": current_item_id, "count": current_count }
 
 
-func _can_drop_data(_at_position: Vector2, _data: Variant) -> bool:
-	# 将来のアイテム合成機能などの拡張用にスロット同士の入れ替えドロップは無効化
+func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+	if data is Dictionary and data.has("from_slot_index"):
+		var from_idx: int = data["from_slot_index"]
+		if from_idx != slot_index:
+			return true
 	return false
 
 
-func _drop_data(_at_position: Vector2, _data: Variant) -> void:
-	pass
+func _drop_data(_at_position: Vector2, data: Variant) -> void:
+	if not (data is Dictionary and data.has("from_slot_index")):
+		return
+
+	var from_idx: int = data["from_slot_index"]
+	if from_idx == slot_index:
+		return
+
+	if InventoryManager == null:
+		return
+
+	# 合成判定
+	var recipe_result = InventoryManager.get_recipe_result(from_idx, slot_index)
+	if recipe_result != "":
+		# 合成可能：素材2つを消去し、生成物をインベントリに追加
+		InventoryManager.combine_slots(from_idx, slot_index)
+	else:
+		# 合成不可：何も変化させず元のアイテムをそのまま残す
+		print("[InventorySlot] 合成レシピが存在しない組み合わせです (%s + %s)" % [data.get("item_id", ""), current_item_id])
