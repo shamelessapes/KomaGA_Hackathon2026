@@ -1,3 +1,88 @@
-[gd_scene format=3 uid="uid://dq4jcm46wmgc2"]
+[gd_scene load_steps=9 format=3 uid="uid://sneumliav4ci"]
+
+[ext_resource type="Script" uid="uid://b4uo18iuphbba" path="res://gd/title.gd" id="1_vtg64"]
+[ext_resource type="Texture2D" uid="uid://3iatrcttyjp3" path="res://image/title_img/1351_20260814234116.png" id="2_eqf0i"]
+[ext_resource type="Texture2D" uid="uid://c0putmmq883ea" path="res://image/title_img/1351_20260814234111.png" id="3_3uxbw"]
+[ext_resource type="Texture2D" uid="uid://bq3e3yw7tnwa2" path="res://image/title_img/1351_20260814234105.png" id="4_rnxbf"]
+[ext_resource type="Texture2D" uid="uid://baxyticwx46ts" path="res://image/title_img/1351_20260814234053.png" id="5_o6q47"]
+[ext_resource type="Texture2D" uid="uid://6o3255gu2vpp" path="res://image/title_img/1351_20260814234057.png" id="6_bxabu"]
+[ext_resource type="Texture2D" uid="uid://c37e5bgpgbxwo" path="res://image/title_img/1351_20260815003636.png" id="7_4sfbg"]
+[ext_resource type="Texture2D" uid="uid://c7artqob0wmdw" path="res://image/title_img/1351_20260814234055.png" id="8_3o6am"]
 
 [node name="Node2D" type="Node2D"]
+script = ExtResource("1_vtg64")
+metadata/_edit_lock_ = true
+
+[node name="haikei" type="Sprite2D" parent="."]
+position = Vector2(577, 325)
+texture = ExtResource("2_eqf0i")
+
+[node name="taitorumei" type="Sprite2D" parent="."]
+position = Vector2(577, 325)
+texture = ExtResource("3_3uxbw")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(579, 336.5)
+scale = Vector2(1, 1.17438)
+texture = ExtResource("4_rnxbf")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+offset_right = 1152.0
+offset_bottom = 647.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button nyuin" type="TextureButton" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.419
+anchor_top = 0.499
+anchor_right = 0.598
+anchor_bottom = 0.598
+offset_left = 0.311951
+offset_top = 0.147003
+offset_right = 0.103943
+offset_bottom = 0.0939636
+size_flags_horizontal = 8
+texture_normal = ExtResource("5_o6q47")
+metadata/_edit_use_anchors_ = true
+
+[node name="Button byousitu" type="TextureButton" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.402
+anchor_top = 0.606
+anchor_right = 0.623
+anchor_bottom = 0.691
+offset_left = -0.104004
+offset_top = -0.0820007
+offset_right = 0.303955
+offset_bottom = -0.0770264
+texture_normal = ExtResource("6_bxabu")
+
+[node name="Button asobi" type="TextureButton" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.439
+anchor_top = 0.708
+anchor_right = 0.582
+anchor_bottom = 0.79
+offset_left = 0.271973
+offset_top = -0.0759888
+offset_right = -0.463989
+offset_bottom = -0.130005
+texture_normal = ExtResource("7_4sfbg")
+
+[node name="Button taiin" type="TextureButton" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.418
+anchor_top = 0.81
+anchor_right = 0.602
+anchor_bottom = 0.912
+offset_left = 0.463989
+offset_top = -0.0700684
+offset_right = 0.495911
+offset_bottom = -0.0640259
+texture_normal = ExtResource("8_3o6am")

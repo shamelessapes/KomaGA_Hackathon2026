@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Team_Unko"
-run/main_scene="uid://ysfb2agjf0a3"
+run/main_scene="uid://sneumliav4ci"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="uid://dcnhinfv6k8sb"
 
