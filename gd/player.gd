@@ -11,7 +11,7 @@ var is_hidden := false
 var footstep_player: AudioStreamPlayer
 
 func _ready():
-	print("Hello World")
+	sprite.play("default_stop")
 	add_to_group("player")
 	target_position = global_position
 

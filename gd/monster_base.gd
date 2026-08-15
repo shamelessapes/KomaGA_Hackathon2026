@@ -13,10 +13,10 @@ extends CharacterBody2D
 @export var weakness_category: Array[String] = []
 
 ## プレイヤー感知範囲 (px)
-@export var detection_radius: float = 100.0
+var detection_radius: float = 300.0
 
 ## 移動速度
-@export var speed: float = 60.0
+var speed: float = 150.0
 
 ## PathFollow2D 内での初期位置オフセット
 @export var spawn_offset: Vector2 = Vector2(-221.876, -249.021)
