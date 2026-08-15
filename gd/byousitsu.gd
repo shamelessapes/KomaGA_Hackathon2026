@@ -47,6 +47,9 @@ var pre_hide_player_position: Vector2 = Vector2.ZERO
 
 var _day_label_tween: Tween
 var _day_transition_in_progress := false
+var initial_player_position: Vector2 = Vector2.ZERO
+var timer_label: Label = null
+var item_sound_player: AudioStreamPlayer = null
 
 
 func _ready() -> void:
@@ -55,6 +58,15 @@ func _ready() -> void:
 	_day_transition_in_progress = false
 	if nioi_sprite:
 		nioi_sprite.hide()
+
+	if player:
+		initial_player_position = player.global_position
+
+	item_sound_player = AudioStreamPlayer.new()
+	item_sound_player.name = "ItemSoundPlayer"
+	add_child(item_sound_player)
+
+	_setup_timer_ui()
 
 	# The scene owns the playable phase flow; the manager only keeps the state/timer.
 	Phasemanager.search_phase_duration = search_phase_duration
@@ -125,8 +137,50 @@ func _handle_right_click_interaction(click_pos: Vector2) -> void:
 			select_hide_point(clicked_area)
 
 
+func _process(_delta: float) -> void:
+	if Phasemanager and Phasemanager.current_phase == Phasemanager.Phase.SEARCH:
+		if timer_label and timer_label.visible:
+			var time_sec: int = max(0, int(ceil(Phasemanager._time_left)))
+			timer_label.text = "残り時間: %d秒" % time_sec
+
+
+func _setup_timer_ui() -> void:
+	var day_ui = get_node_or_null("DayUI")
+	if day_ui == null:
+		return
+
+	timer_label = day_ui.get_node_or_null("TimerLabel") as Label
+	if timer_label == null:
+		timer_label = Label.new()
+		timer_label.name = "TimerLabel"
+		timer_label.anchors_preset = Control.PRESET_TOP_RIGHT
+		timer_label.anchor_left = 1.0
+		timer_label.anchor_top = 0.0
+		timer_label.anchor_right = 1.0
+		timer_label.anchor_bottom = 0.0
+		timer_label.offset_left = -260.0
+		timer_label.offset_top = 20.0
+		timer_label.offset_right = -20.0
+		timer_label.offset_bottom = 65.0
+		timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		timer_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+		var font_res = load("res://font/shippori3/ShipporiMincho-OTF-Bold.otf") as Font
+		if font_res:
+			timer_label.add_theme_font_override("font", font_res)
+		timer_label.add_theme_font_size_override("font_size", 26)
+		timer_label.add_theme_color_override("font_color", Color.WHITE)
+		timer_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+		timer_label.add_theme_constant_override("outline_size", 4)
+		day_ui.add_child(timer_label)
+
+	timer_label.show()
+
+
 func _on_search_phase_ended() -> void:
 	$tansaku.stop()
+	if timer_label:
+		timer_label.hide()
 	await Global.play_sound("res://sound/ドア閉.mp3")
 	Phasemanager.start_hide_phase()
 	$dokidoki.play()
@@ -159,6 +213,28 @@ func _on_monster_exited() -> void:
 
 
 func _on_day_changed(_new_day: int) -> void:
+	# 1. 隠れ状態の解除、「出る？」UIの閉鎖、プレイヤー初期位置復元
+	if is_hiding or current_hide_point != null:
+		is_hiding = false
+		if player and player.has_method("set_hidden_state"):
+			player.set_hidden_state(false)
+		elif player:
+			player.visible = true
+		current_hide_point = null
+		current_find_difficulty = 0.0
+		hide_confirmation_ui()
+
+	if player and initial_player_position != Vector2.ZERO:
+		player.global_position = initial_player_position
+
+	# 2. 「音」効果音ループの停止
+	if item_sound_player:
+		item_sound_player.stop()
+
+	# 3. 制限時間UIの表示再開
+	if timer_label:
+		timer_label.show()
+
 	if nioi_sprite:
 		nioi_sprite.hide()
 	_show_day_text()
@@ -167,9 +243,43 @@ func _on_day_changed(_new_day: int) -> void:
 
 func _on_item_used(item_id: String, _slot_index: int) -> void:
 	var item_data = ItemDatabase.get_item(item_id)
-	if item_data and (item_data.has_category("匂い") or item_data.has_category(ItemDatabase.CATEGORY_SMELL)):
+	if item_data == null:
+		return
+
+	# 匂い演出
+	if item_data.has_category("匂い") or item_data.has_category(ItemDatabase.CATEGORY_SMELL):
 		if nioi_sprite:
 			nioi_sprite.show()
+
+	# 音アイテム効果音ループ再生
+	if item_data.has_category("音") or item_data.has_category(ItemDatabase.CATEGORY_SOUND) or item_data.sound_path != "":
+		_play_loop_sound_for_item(item_data)
+
+
+func _play_loop_sound_for_item(item_data: ItemDatabase.ItemData) -> void:
+	if item_sound_player == null:
+		return
+
+	var s_path: String = item_data.sound_path
+	if s_path == "" or not ResourceLoader.exists(s_path):
+		var default_sounds = {
+			"nursecall": "res://sound/The_Hidden_Custom.mp3",
+			"medicine": "res://sound/心音.mp3",
+			"ketuatu": "res://sound/心音.mp3",
+			"doraiya-": "res://sound/探索環境音.mp3"
+		}
+		s_path = default_sounds.get(item_data.id, "res://sound/The_Hidden_Custom.mp3")
+
+	if ResourceLoader.exists(s_path):
+		var stream = load(s_path) as AudioStream
+		if stream:
+			if "loop" in stream:
+				stream.set("loop", true)
+			if "parameters/looping" in stream:
+				stream.set("parameters/looping", true)
+			item_sound_player.stream = stream
+			item_sound_player.play()
+			print("【音アイテム再生開始】: ", item_data.name, " (パス: ", s_path, ")")
 
 
 ## 現在の日数に応じたモンスターを PathFollow2D 配下に動的生成する

@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=32 format=3 uid="uid://ysfb2agjf0a3"]
 
 [ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://gd/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://cj401lisesnjg" path="res://image/stegae_img/byousitsu.png" id="2_3qcvk"]
@@ -55,6 +55,10 @@ font_size = 39
 shadow_size = 32
 shadow_color = Color(0, 0, 0, 1)
 
+[sub_resource type="LabelSettings" id="LabelSettings_l8o4p"]
+font = ExtResource("6_y7g3s")
+font_size = 30
+
 [sub_resource type="Curve2D" id="Curve2D_rrgwt"]
 _data = {
 "points": PackedVector2Array(0, 0, 0, 0, -284.8, -8.8, 0, 0, 0, 0, -92, 48.8, 0, 0, 0, 0, 88.8, 2.39999, -23.4821, -27.5463, 23.4821, 27.5463, 128.8, 35.2, -21.8182, 0.661157, 21.8182, -0.661157, 228.8, 97.6, 0, 0, 0, 0, 284, 97.6, 0, 0, 0, 0, 236.8, 125.6, 0, 0, 0, 0, 135.2, 232, 0, 0, 0, 0, 144, 197.6, 0, 0, 0, 0, 74.4, 152.8, 0, 0, 0, 0, -95.2, 168.8, 0, 0, 0, 0, -54.4, 94.4, 0, 0, 0, 0, -192, 63.2, 0, 0, 0, 0, -300.8, 64.8, 0, 0, 0, 0, -286.4, -5.59999)
@@ -66,8 +70,8 @@ position = Vector2(576, 324)
 scale = Vector2(1.25, 1.25)
 script = ExtResource("1_fd7ky")
 hide_distance = 200.0
-item_pickup_distance = 150.0
-search_phase_duration = 30.0
+item_pickup_distance = 200.0
+search_phase_duration = 100.0
 day_display_fade_duration = 2.0
 metadata/_edit_lock_ = true
 
@@ -93,7 +97,7 @@ metadata/_edit_lock_ = true
 
 [node name="player" parent="." instance=ExtResource("2_t0s2g")]
 z_index = 1
-position = Vector2(-2.4, 63.2)
+position = Vector2(331.2, 76)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 script = ExtResource("3_iisva")
@@ -450,6 +454,19 @@ text = "一夜目"
 label_settings = SubResource("LabelSettings_y7g3s")
 horizontal_alignment = 2
 
+[node name="TimerLabel" type="Label" parent="DayUI"]
+anchors_preset = -1
+anchor_left = 0.789
+anchor_top = 0.134
+anchor_right = 0.977
+anchor_bottom = 0.194
+offset_left = 0.0719604
+offset_top = -4.832
+offset_right = 2.49597
+offset_bottom = 0.287994
+text = "あああああああ"
+label_settings = SubResource("LabelSettings_l8o4p")
+
 [node name="InventoryUI" parent="." instance=ExtResource("6_inventoryui")]
 
 [node name="Items" type="Node2D" parent="."]
@@ -501,7 +518,6 @@ item_id = "aruko-ru"
 
 [node name="nursecall" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
 position = Vector2(336, -64.8)
-scale = Vector2(0.5, 0.5)
 item_id = "nurcecall"
 
 [node name="ketuatu" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]

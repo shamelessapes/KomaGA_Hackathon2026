@@ -24,6 +24,9 @@ class ItemData:
 	## 合成用設定 (例: "fuku + pacemaker -> migawari")
 	var gousei: String = ""
 
+	## 効果音再生用ファイルパス ("音" カテゴリ等)
+	var sound_path: String = ""
+
 	func _init(
 		p_id: String,
 		p_name: String,
@@ -36,7 +39,8 @@ class ItemData:
 		p_world_scale: Vector2 = Vector2(1.0, 1.0),
 		p_categories: Array[String] = [],
 		p_settibutsu: String = "",
-		p_gousei: String = ""
+		p_gousei: String = "",
+		p_sound_path: String = ""
 	):
 		id = p_id
 		name = p_name
@@ -50,6 +54,7 @@ class ItemData:
 		categories = p_categories
 		settibutsu = p_settibutsu
 		gousei = p_gousei
+		sound_path = p_sound_path
 
 	## 指定カテゴリを持っているか判定
 	func has_category(category_name: String) -> bool:
@@ -102,7 +107,8 @@ func _register_default_items() -> void:
 		preload("res://image/icon.svg"), #（変えないで下さい）
 		func(_user, _target): print("ナースコールを使用した。音が部屋に響き続けてる。"), #（変えないで下さい）
 		Vector2(1.0, 1.0),
-		["音"]
+		["音"],
+		"res://sound/ドア閉.mp3"
 	))
 
 
@@ -177,7 +183,8 @@ func _register_default_items() -> void:
 		func(_user, _target): print("このアイテムは何かと組み合わせる必要がありそう。"), #（変えないで下さい）
 		Vector2(1.0, 1.0), #（変えないで下さい）
 		[CATEGORY_SETTIBUTSU,"音","動き"],
-		"remokon"
+		"remokon",
+		"res://sound/ドア閉.mp3"
 	))
 
 
