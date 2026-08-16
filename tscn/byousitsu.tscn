@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=40 format=3 uid="uid://ysfb2agjf0a3"]
 
 [ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://gd/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://cj401lisesnjg" path="res://image/stegae_img/byousitsu.png" id="2_3qcvk"]
@@ -22,6 +22,7 @@
 [ext_resource type="AudioStream" uid="uid://bdjh7wa6st84b" path="res://sound/探索環境音.mp3" id="21_l8o4p"]
 [ext_resource type="Texture2D" uid="uid://brsx8fakgwe57" path="res://image/kusai.png" id="22_ubwto"]
 [ext_resource type="AudioStream" uid="uid://dtfhwuo0r3ex5" path="res://sound/心音.mp3" id="22_uxcfu"]
+[ext_resource type="PackedScene" uid="uid://xcrteqfp7452" path="res://tscn/hintbook.tscn" id="22_ysrgi"]
 [ext_resource type="Texture2D" uid="uid://bv2c3vd2c5e12" path="res://image/ketuatu1.png" id="24_hxc2v"]
 [ext_resource type="Texture2D" uid="uid://cigputvb8vdat" path="res://image/stegae_img/background.png" id="24_ubwto"]
 [ext_resource type="Texture2D" uid="uid://jsa6p4sm64bm" path="res://image/tv1.png" id="24_upcvo"]
@@ -655,3 +656,6 @@ scale = Vector2(0.09, 0.09)
 sprite_frames = SubResource("SpriteFrames_ysrgi")
 animation = &"ketuatu_animation"
 frame_progress = 0.152282
+
+[node name="hintbook" parent="." instance=ExtResource("22_ysrgi")]
+position = Vector2(320, 95)

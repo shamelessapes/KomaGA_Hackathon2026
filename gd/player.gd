@@ -99,31 +99,43 @@ func _physics_process(_delta):
 	_update_footstep_sound(true)
 	
 	
+var current_facing: String = "default"
+
+
 #　ーーーーー　アニメーション制御　ーーーーー
 func update_animation(direction: Vector2):
 
 	if abs(direction.x) > abs(direction.y):
 
 		if direction.x > 0:
+			current_facing = "right"
 			if sprite.animation != "right":
 				sprite.play("right")
 		else:
+			current_facing = "left"
 			if sprite.animation != "left":
 				sprite.play("left")
 
 	else:
 
 		if direction.y > 0:
+			current_facing = "default"
 			if sprite.animation != "default":
 				sprite.play("default")
 		else:
+			current_facing = "back"
 			if sprite.animation != "back":
 				sprite.play("back")
 				
 				
 #　ーーーーー　停止時のアニメーション制御　ーーーーー
 func update_idle_animation():
-	sprite.stop()
+	var stop_anim = current_facing + "_stop"
+	if sprite.sprite_frames and sprite.sprite_frames.has_animation(stop_anim):
+		if sprite.animation != stop_anim:
+			sprite.play(stop_anim)
+	else:
+		sprite.stop()
 
 #　ーーーーー　隠れる状態の設定　ーーーーー
 func set_hidden_state(hidden: bool, hide_position: Vector2 = Vector2.ZERO) -> void:
