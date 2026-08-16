@@ -55,9 +55,9 @@ func save_game() -> void:
 		var json_string = JSON.stringify(save_dict, "\t")
 		file.store_string(json_string)
 		file.close()
-		print("[SaveManager] セーブデータを保存しました (Day: %d)" % current_day_val)
-	else:
-		push_error("[SaveManager] セーブデータの書き込みに失敗しました")
+		#print("[SaveManager] セーブデータを保存しました (Day: %d)" % current_day_val)
+	#else:
+		#push_error("[SaveManager] セーブデータの書き込みに失敗しました")
 
 
 ## セーブデータから日付とインベントリを復元

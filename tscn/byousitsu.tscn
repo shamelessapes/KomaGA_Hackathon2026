@@ -120,7 +120,7 @@ metadata/_edit_lock_ = true
 [node name="bed1" type="Area2D" parent="beds" groups=["hide_point"]]
 z_index = -8
 position = Vector2(56, -64.8)
-metadata/find_difficulty = 100
+metadata/find_difficulty = 95
 metadata/_edit_lock_ = true
 
 [node name="Sprite2D" type="Sprite2D" parent="beds/bed1"]
@@ -137,7 +137,7 @@ metadata/_edit_lock_ = true
 [node name="bed2" type="Area2D" parent="beds" groups=["hide_point"]]
 z_index = -6
 position = Vector2(311.2, -3.99997)
-metadata/find_difficulty = 90
+metadata/find_difficulty = 95
 metadata/_edit_lock_ = true
 
 [node name="Sprite2D2" type="Sprite2D" parent="beds/bed2"]
@@ -605,6 +605,7 @@ parameters/looping = true
 
 [node name="nioi" type="Sprite2D" parent="."]
 visible = false
+modulate = Color(0.811285, 0.431309, 0.878523, 1)
 z_index = 5
 scale = Vector2(1.75, 1.75)
 texture = ExtResource("22_ubwto")

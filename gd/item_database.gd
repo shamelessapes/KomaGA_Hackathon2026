@@ -309,7 +309,7 @@ func _register_default_items() -> void:
 		false, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/fuku.png"), #（変えないで下さい）
 		func(_user, _target): print("このアイテムは何かと組み合わせる必要がありそう。"), #（変えないで下さい）
 		Vector2(1.0, 1.0)  #（変えないで下さい）
 	))
@@ -346,7 +346,7 @@ func _register_default_items() -> void:
 	))
 	
 	
-# 18. 身代わり人形
+# 18. 血液
 	register_item(ItemData.new(
 		"kusai_ti",
 		"破られた血液パック",
@@ -354,7 +354,7 @@ func _register_default_items() -> void:
 		true, 
 		false, 
 		99, 
-		preload("res://image/icon.svg"), 
+		preload("res://image/kusai_ti.png"), 
 		func(_user, _target): print("血をぶちまけた。部屋に血の匂いが充満する！"), 
 		Vector2(1.0, 1.0),
 		[CATEGORY_GOUSEI,"匂い"],

@@ -33,6 +33,10 @@ extends Node2D
 var is_hiding: bool = false
 var is_captured: bool = false
 var is_medicine_used_today: bool = false
+var is_sound_item_used_today: bool = false
+var is_smell_item_used_today: bool = false
+var is_motion_item_used_today: bool = false
+var is_temp_item_used_today: bool = false
 var current_hide_point: Area2D = null
 var current_find_difficulty: float = 0.0
 var pre_hide_player_position: Vector2 = Vector2.ZERO
@@ -308,8 +312,12 @@ func _on_monster_exited() -> void:
 
 
 func _on_day_changed(_new_day: int) -> void:
-	# 0. 本日の薬剤使用フラグをリセット
+	# 0. 本日のアイテム使用フラグをリセット
 	is_medicine_used_today = false
+	is_sound_item_used_today = false
+	is_smell_item_used_today = false
+	is_motion_item_used_today = false
+	is_temp_item_used_today = false
 
 	# 1. 隠れ状態の解除、「出る？」UIの閉鎖、プレイヤー初期位置復元
 	if is_hiding or current_hide_point != null:
@@ -354,14 +362,24 @@ func _on_item_used(item_id: String, _slot_index: int) -> void:
 		is_medicine_used_today = true
 		print("【薬剤使用】本日のかくれんぼフェーズの心音($dokidoki)再生を停止します。")
 
-	# 匂い演出
+	# 匂いカテゴリ判定
 	if item_data.has_category("匂い") or item_data.has_category(ItemDatabase.CATEGORY_SMELL):
+		is_smell_item_used_today = true
 		if nioi_sprite:
 			nioi_sprite.show()
 
-	# 音アイテム効果音ループ再生
+	# 音カテゴリ判定
 	if item_data.has_category("音") or item_data.has_category(ItemDatabase.CATEGORY_SOUND) or item_data.sound_path != "":
+		is_sound_item_used_today = true
 		_play_loop_sound_for_item(item_data)
+
+	# 動きカテゴリ判定
+	if item_data.has_category("動き") or item_data.has_category("動く") or item_data.has_category(ItemDatabase.CATEGORY_MOTION):
+		is_motion_item_used_today = true
+
+	# 温度カテゴリ判定
+	if item_data.has_category("温度") or item_data.has_category(ItemDatabase.CATEGORY_TEMPERATURE):
+		is_temp_item_used_today = true
 
 
 func _play_loop_sound_for_item(item_data: ItemDatabase.ItemData) -> void:
@@ -501,6 +519,16 @@ func _interact_with_settibutsu(item_data: ItemDatabase.ItemData, area: Area2D, i
 		var req_name = req_data.name if req_data else required_item_id
 		print("【設置物使用】設置物 '%s' を作動。必要アイテム '%s' を1個消費しました。" % [item_data.name, req_name])
 
+		# 音 / 匂い / 動き / 温度 カテゴリ判定
+		if item_data.has_category("音") or (req_data and req_data.has_category("音")) or item_data.id in ["konsento", "tv"]:
+			is_sound_item_used_today = true
+		if item_data.has_category("匂い") or (req_data and req_data.has_category("匂い")):
+			is_smell_item_used_today = true
+		if item_data.has_category("動き") or item_data.has_category("動く") or (req_data and (req_data.has_category("動き") or req_data.has_category("動く"))):
+			is_motion_item_used_today = true
+		if item_data.has_category("温度") or (req_data and req_data.has_category("温度")):
+			is_temp_item_used_today = true
+
 		# 後から設置物ごとの処理を追加できる拡張用フック呼び出し
 		ItemDatabase.execute_settibutsu_effect(item_data.id, required_item_id, player, item_node if item_node != self else area)
 
@@ -532,19 +560,46 @@ func _check_and_select_hide_point(click_pos: Vector2) -> void:
 
 
 
+## 隠れ場所の見つかりにくさ(find_difficulty)の動的算出 (基本95.0, Monster2/3の個別判定)
+func _get_calculated_find_difficulty(area: Area2D) -> float:
+	if area == null:
+		return 0.0
+
+	var base_difficulty: float = 95.0
+	if area.has_meta("find_difficulty"):
+		base_difficulty = float(area.get_meta("find_difficulty"))
+
+	if Daymanager:
+		var day: int = Daymanager.current_day
+		# Day 2 (Monster 2): 「音」カテゴリのアイテムを使用しなかった場合、hide_difficulty = 0
+		if day == 2 and not is_sound_item_used_today:
+			print("【Monster 2 ルール適用】本日「音」カテゴリのアイテムが使用されなかったため、見つかりにくさ(find_difficulty)が 0.0 に設定されました。")
+			return 0.0
+		# Day 3 (Monster 3): 「匂い」カテゴリのアイテムを使用しなかった場合、hide_difficulty = 0
+		elif day == 3 and not is_smell_item_used_today:
+			print("【Monster 3 ルール適用】本日「匂い」カテゴリのアイテムが使用されなかったため、見つかりにくさ(find_difficulty)が 0.0 に設定されました。")
+			return 0.0
+		# Day 4 (Monster 4): 「動き」カテゴリのアイテムを使用しなかった場合、hide_difficulty = 0
+		elif day == 4 and not is_motion_item_used_today:
+			print("【Monster 4 ルール適用】本日「動き」カテゴリのアイテムが使用されなかったため、見つかりにくさ(find_difficulty)が 0.0 に設定されました。")
+			return 0.0
+		# Day 5 (Monster 5): 「温度」アイテム未使用、かつ「horeizai」も所持していない場合、hide_difficulty = 0
+		elif day == 5:
+			var has_horeizai: bool = InventoryManager != null and InventoryManager.has_item("horeizai")
+			if not is_temp_item_used_today and not has_horeizai:
+				print("【Monster 5 ルール適用】本日「温度」アイテムが使用されず、かつ「horeizai」も所持していないため、見つかりにくさ(find_difficulty)が 0.0 に設定されました。")
+				return 0.0
+			else:
+				print("【Monster 5 ルール適用】「温度」アイテム使用済、または「horeizai」所持により見つかりにくさ 95.0% が維持されます。")
+
+	return base_difficulty
+
+
 ## 隠れ場所を選択し、メタデータの読み込みとUI表示を行う
 func select_hide_point(area: Area2D) -> void:
 	current_hide_point = area
-	
-	# GodotのInspectorで設定した metadata "find_difficulty" を取得 (デフォルト値 50)
-	if area.has_meta("find_difficulty"):
-		current_find_difficulty = float(area.get_meta("find_difficulty"))
-	else:
-		current_find_difficulty = 50.0
-		
+	current_find_difficulty = _get_calculated_find_difficulty(area)
 	print("隠れ場所を選択: ", area.name, " | 見つかりにくさ(find_difficulty): ", current_find_difficulty)
-	
-	# 「隠れる？」確認UIの表示
 	show_hide_confirmation()
 
 
@@ -554,10 +609,13 @@ func select_hide_point(area: Area2D) -> void:
 func hide_player_in_current_point() -> void:
 	if current_hide_point == null:
 		return
-		
+
 	# 隠れる直前のプレイヤー位置を記録
 	pre_hide_player_position = player.global_position
-	
+
+	# 最新の find_difficulty を再計算・反映
+	current_find_difficulty = _get_calculated_find_difficulty(current_hide_point)
+
 	# 隠れている状態にする
 	is_hiding = true
 	if player.has_method("set_hidden_state"):
@@ -567,8 +625,6 @@ func hide_player_in_current_point() -> void:
 		player.visible = false
 
 	print("プレイヤーが隠れました: ", current_hide_point.name, " (見つかりにくさ: ", current_find_difficulty, ")")
-	
-	# 隠れている最中の「出る？」UI表示に切り替え
 	show_exit_confirmation()
 
 

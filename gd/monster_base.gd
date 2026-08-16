@@ -13,7 +13,7 @@ extends CharacterBody2D
 @export var weakness_category: Array[String] = []
 
 ## プレイヤー感知範囲 (px)
-var detection_radius: float = 300.0
+var detection_radius: float = 400.0
 
 ## 移動速度
 var speed: float = 150.0

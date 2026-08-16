@@ -5,7 +5,7 @@ signal day_changed(new_day: int)
 const MAX_DAY: int = 7
 const DAY_KANJI: Array[String] = ["一", "二", "三", "四", "五", "六", "七"]
 
-var current_day: int = 1
+var current_day: int = 3
 
 func get_day_status_name() -> String:
 	return str(current_day) + "day"
