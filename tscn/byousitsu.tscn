@@ -71,7 +71,7 @@ scale = Vector2(1.25, 1.25)
 script = ExtResource("1_fd7ky")
 hide_distance = 200.0
 item_pickup_distance = 200.0
-search_phase_duration = 100.0
+search_phase_duration = 10.0
 day_display_fade_duration = 2.0
 metadata/_edit_lock_ = true
 

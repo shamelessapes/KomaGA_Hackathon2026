@@ -192,6 +192,12 @@ func _on_hide_phase_ended() -> void:
 	_day_transition_in_progress = true
 	$dokidoki.stop()
 	await Global.play_sound("res://sound/ドア閉.mp3")
+
+	if Daymanager and Daymanager.current_day >= Daymanager.MAX_DAY:
+		print("[Byousitsu] 7日目終了。エピローグ画面へ遷移します (3秒フェードアウト)")
+		Global.change_scene_with_fade("res://tscn/ending.tscn", Color.BLACK, 3.0)
+		return
+
 	Phasemanager.start_search_phase()
 	$tansaku.play()
 	await Scenetransition.change_day()

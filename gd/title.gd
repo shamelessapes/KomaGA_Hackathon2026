@@ -10,6 +10,8 @@ var popup_close_btn: Button
 
 
 func _ready() -> void:
+	Global.fade_in(Color.BLACK)
+	
 	# ボタンシグナル接続およびホバー演出設定
 	if btn_nyuin:
 		btn_nyuin.pressed.connect(_on_nyuin_pressed)
