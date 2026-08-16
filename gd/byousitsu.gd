@@ -59,7 +59,14 @@ var item_sound_player: AudioStreamPlayer = null
 func _ready() -> void:
 	Global.fade_in(Color.BLACK)
 	is_captured = false
+	is_hiding = false
+	current_hide_point = null
+	current_find_difficulty = 0.0
 	_day_transition_in_progress = false
+
+	if Phasemanager:
+		Phasemanager.reset_to_search_phase()
+
 	if nioi_sprite:
 		nioi_sprite.hide()
 
@@ -88,20 +95,7 @@ func _ready() -> void:
 	_connect_monster_exit_signals()
 	_show_day_text()
 
-	if Daymanager and Daymanager.current_day == 1:
-		# 1日目: コード上で tutorial.tscn を動的生成。チュートリアルの合図があるまで探索を開始しない
-		var tuto_scene = load("res://tscn/tutorial.tscn") as PackedScene
-		if tuto_scene:
-			var tuto_inst = tuto_scene.instantiate()
-			add_child(tuto_inst)
-			var cam = get_node_or_null("Camera2D") as Camera2D
-			var hb = get_node_or_null("hintbook") as Area2D
-			if tuto_inst.has_method("setup_references"):
-				tuto_inst.setup_references(self, cam, hb)
-			print("[Byousitsu] 1日目: コード上で tutorial.tscn を生成しました")
-	else:
-		Phasemanager.start_search_phase()
-		$tansaku.play()
+	_start_day_flow()
 
 	if SaveManager:
 		SaveManager.save_game()
@@ -119,6 +113,32 @@ func _ready() -> void:
 	_setup_all_hover_outlines()
 
 
+func _start_day_flow() -> void:
+	if Daymanager and Daymanager.current_day == 1:
+		# 1日目: コード上で tutorial.tscn を動的生成。チュートリアルの合図があるまで探索を開始しない
+		var tuto_scene = load("res://tscn/tutorial.tscn") as PackedScene
+		if tuto_scene:
+			var tuto_inst = tuto_scene.instantiate()
+			add_child(tuto_inst)
+			var cam = get_node_or_null("Camera2D") as Camera2D
+			var hb = get_node_or_null("hintbook") as Area2D
+			if tuto_inst.has_method("setup_references"):
+				tuto_inst.setup_references(self, cam, hb)
+			print("[Byousitsu] 1日目: コード上で tutorial.tscn を生成しました")
+	elif Daymanager and Daymanager.current_day == 2:
+		# 2日目: コード上で day2_text.tscn を動的生成。会話終了まで探索を開始しない
+		var day2_scene = load("res://tscn/day2_text.tscn") as PackedScene
+		if day2_scene:
+			var day2_inst = day2_scene.instantiate()
+			add_child(day2_inst)
+			if day2_inst.has_method("setup_references"):
+				day2_inst.setup_references(self)
+			print("[Byousitsu] 2日目: コード上で day2_text.tscn を生成しました")
+	else:
+		Phasemanager.start_search_phase()
+		$tansaku.play()
+
+
 func _is_hint_book_open() -> bool:
 	var hb = get_node_or_null("hintbook")
 	return hb != null and "is_open" in hb and hb.is_open
@@ -134,9 +154,14 @@ func _is_tutorial_waiting_hintbook() -> bool:
 	return tuto != null and is_instance_valid(tuto) and "is_waiting_hintbook" in tuto and tuto.is_waiting_hintbook
 
 
+func _is_day2_text_active() -> bool:
+	var d2 = get_node_or_null("day2_text")
+	return d2 != null and is_instance_valid(d2) and "is_finished" in d2 and not d2.is_finished
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	# 隠れている最中・ヒント本を開いている最中は移動を受け付けない
-	if is_hiding or _is_hint_book_open():
+	# 隠れている最中・ヒント本を開いている最中・2日目会話進行中は移動を受け付けない
+	if is_hiding or _is_hint_book_open() or _is_day2_text_active():
 		return
 
 	# チュートリアル中（ヒント本閲覧待機時以外）は移動を受け付けない
@@ -154,7 +179,7 @@ func _unhandled_input(event: InputEvent) -> void:
 # 1. 右クリックインタラクション処理 (優先順位: アイテム -> 隠れ場所)
 # ========================================================
 func _handle_right_click_interaction(click_pos: Vector2) -> void:
-	if is_hiding or _is_hint_book_open():
+	if is_hiding or _is_hint_book_open() or _is_day2_text_active():
 		return
 
 	# マウス位置にあるArea2Dを取得
@@ -264,8 +289,6 @@ func _on_hide_phase_ended() -> void:
 		Global.change_scene_with_fade("res://tscn/ending.tscn", Color.BLACK, 3.0)
 		return
 
-	Phasemanager.start_search_phase()
-	$tansaku.play()
 	await Scenetransition.change_day()
 	_day_transition_in_progress = false
 
@@ -312,8 +335,13 @@ func _on_day_changed(_new_day: int) -> void:
 
 	if nioi_sprite:
 		nioi_sprite.hide()
+
+	if Phasemanager:
+		Phasemanager.reset_to_search_phase()
+
 	_show_day_text()
 	spawn_current_day_monster()
+	_start_day_flow()
 
 
 func _on_item_used(item_id: String, _slot_index: int) -> void:

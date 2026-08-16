@@ -323,7 +323,7 @@ func _register_default_items() -> void:
 		true, 
 		false, 
 		99, 
-		preload("res://image/icon.svg"), 
+		preload("res://image/migawari.png"), 
 		func(_user, _target): print("身代わり人形をおいた。"), 
 		Vector2(1.0, 1.0),
 		[CATEGORY_GOUSEI],

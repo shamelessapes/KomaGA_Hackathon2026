@@ -26,6 +26,9 @@ func _ready() -> void:
 
 func open_book() -> void:
 	is_open = true
+	if Phasemanager:
+		Phasemanager.pause_search_timer()
+
 	var day: int = 1
 	if Daymanager:
 		day = clampi(Daymanager.current_day, 1, 7)
@@ -52,6 +55,8 @@ func open_book() -> void:
 
 func close_book() -> void:
 	is_open = false
+	if Phasemanager:
+		Phasemanager.resume_search_timer()
 	if hint_canvas:
 		hint_canvas.hide()
 		#Global.play_bgm_by_path("res://sound/本めくり.mp3")

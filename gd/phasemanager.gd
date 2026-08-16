@@ -12,13 +12,37 @@ signal hide_phase_ended
 var current_phase: Phase = Phase.SEARCH
 var _time_left: float = 0.0
 var _timer_active: bool = false
+var _was_timer_active_before_pause: bool = false
+
+
+func reset_to_search_phase() -> void:
+	current_phase = Phase.SEARCH
+	_timer_active = false
+	_was_timer_active_before_pause = false
+	_time_left = search_phase_duration
+	print("[PhaseManager] フェーズ状態を Phase.SEARCH にリセットしました")
+
 
 func start_search_phase() -> void:
 	current_phase = Phase.SEARCH
 	_time_left = search_phase_duration
 	_timer_active = true
+	_was_timer_active_before_pause = false
 	phase_changed.emit(current_phase)
 	print("[PhaseManager] 探索フェーズ開始（%s秒）" % search_phase_duration)
+
+
+func pause_search_timer() -> void:
+	if current_phase == Phase.SEARCH:
+		_was_timer_active_before_pause = _timer_active
+		_timer_active = false
+		print("[PhaseManager] 探索タイマーを一時停止しました")
+
+
+func resume_search_timer() -> void:
+	if current_phase == Phase.SEARCH and _was_timer_active_before_pause:
+		_timer_active = true
+		print("[PhaseManager] 探索タイマーを再開しました")
 	
 
 var _print_timer := 0.0

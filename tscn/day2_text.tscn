@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://dno7aje22iv8n"]
+
+[ext_resource type="Texture2D" uid="uid://b5460o1hithmm" path="res://image/black_window.png" id="1_wbvm5"]
+[ext_resource type="FontFile" uid="uid://00a5g5gvlt66" path="res://font/shippori3/ShipporiMincho-OTF-Bold.otf" id="2_3bdba"]
+[ext_resource type="Script" uid="uid://pwlrd6atfqda" path="res://gd/day2_text.gd" id="3_d2script"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_2rp6d"]
+font = ExtResource("2_3bdba")
+font_size = 30
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.8)
+
+[node name="day2_text" type="CanvasLayer"]
+layer = 30
+script = ExtResource("3_d2script")
+
+[node name="text_background" type="TextureRect" parent="."]
+anchors_preset = -1
+anchor_left = 0.04
+anchor_top = 0.72
+anchor_right = 0.96
+anchor_bottom = 0.98
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("1_wbvm5")
+expand_mode = 1
+
+[node name="text" type="Label" parent="."]
+anchors_preset = -1
+anchor_left = 0.07
+anchor_top = 0.76
+anchor_right = 0.93
+anchor_bottom = 0.94
+grow_horizontal = 2
+grow_vertical = 0
+label_settings = SubResource("LabelSettings_2rp6d")
+autowrap_mode = 2
