@@ -3,6 +3,10 @@ extends Node2D
 ## プレイヤーから隠れ場所までの最大許容距離
 @export var hide_distance: float = 100.0
 
+## 「動いた」シグナル（monster4検知用）
+signal item_moved_signal(item_node: Node, anim_sprite: AnimatedSprite2D)
+
+
 ## プレイヤーからアイテムまでの最大取得許容距離
 @export var item_pickup_distance: float = 100.0
 
@@ -33,7 +37,7 @@ extends Node2D
 @export var migawari_world_scale: Vector2 = Vector2(1.0, 1.0)
 
 ## 破られた血液パック（kusai_ti）ドロップ時の配置スケール（Inspector / スクリプトから変更可能）
-@export var kusai_ti_world_scale: Vector2 = Vector2(1.0, 1.0)
+@export var kusai_ti_world_scale: Vector2 = Vector2(0.5, 0.5)
 
 ## 状態管理
 var is_hiding: bool = false
@@ -405,6 +409,10 @@ func _on_item_used(item_id: String, _slot_index: int) -> void:
 	if item_id == "migawari":
 		_spawn_migawari_world_item()
 
+	# 血圧計 (ketuatu) 使用時：地面 (NavigationRegion2D 内) にワールドアイテムとして配置し、ugoku_ketuatu を再生
+	if item_id == "ketuatu":
+		_spawn_ketuatu_world_item()
+
 
 ## 身代わり人形（migawari）をプレイヤーの近くの地面（NavigationRegion2D内）へ配置する
 func _spawn_migawari_world_item() -> void:
@@ -431,6 +439,64 @@ func _spawn_migawari_world_item() -> void:
 	world_item.global_position = final_pos
 	_setup_node_hover_outline(world_item)
 	print("【身代わり人形】地面(%s)に配置しました。Scale: %s" % [final_pos, migawari_world_scale])
+
+
+## 血圧計（ketuatu）をプレイヤーの近くの地面（NavigationRegion2D内）へ配置し、ugoku_ketuatuを再生する
+func _spawn_ketuatu_world_item() -> void:
+	if player == null:
+		return
+
+	var raw_pos: Vector2 = player.global_position
+	var final_pos: Vector2 = raw_pos
+	var nav_map = get_world_2d().get_navigation_map()
+	if nav_map.is_valid():
+		final_pos = NavigationServer2D.map_get_closest_point(nav_map, raw_pos)
+
+	var world_item_scene = preload("res://tscn/world_item.tscn")
+	var world_item = world_item_scene.instantiate()
+	world_item.item_id = "ketuatu"
+	var item_data = ItemDatabase.get_item("ketuatu")
+	if item_data:
+		world_item.scale = item_data.world_scale
+
+	var items_container = get_node_or_null("Items")
+	if items_container:
+		items_container.add_child(world_item)
+	else:
+		add_child(world_item)
+
+	world_item.global_position = final_pos
+	_setup_node_hover_outline(world_item)
+
+	# ketuatu が持つ static な Sprite2D を非表示にして ugoku_ketuatu のアニメーションと被らないようにする
+	var sprite_node = world_item.get_node_or_null("Sprite2D")
+	if sprite_node:
+		sprite_node.hide()
+
+	var ugoku_ketuatu = get_node_or_null("ugoku_ketuatu") as AnimatedSprite2D
+	if ugoku_ketuatu:
+		ugoku_ketuatu.global_position = final_pos
+		ugoku_ketuatu.show()
+		if ugoku_ketuatu.sprite_frames and ugoku_ketuatu.sprite_frames.has_animation("ketuatu_animation"):
+			ugoku_ketuatu.play("ketuatu_animation")
+		elif ugoku_ketuatu.sprite_frames and ugoku_ketuatu.sprite_frames.has_animation("animation_ketuatu"):
+			ugoku_ketuatu.play("animation_ketuatu")
+		else:
+			ugoku_ketuatu.play()
+
+	_trigger_item_ugoku(world_item, ugoku_ketuatu)
+	print("【血圧計】地面(%s)に配置しました。Sprite2Dを非表示にし、ugoku_ketuatu アニメーション再生開始" % final_pos)
+
+
+## アイテム作動時の「動いた」合図発信・メタデータ登録処理
+func _trigger_item_ugoku(item_node: Node, anim_sprite: AnimatedSprite2D) -> void:
+	if item_node:
+		item_node.set_meta("ugoku_active", true)
+		if anim_sprite:
+			item_node.set_meta("anim_sprite", anim_sprite)
+	item_moved_signal.emit(item_node, anim_sprite)
+	print("【動いた合図発信】アイテム: %s, AnimatedSprite2D: %s" % [item_node.name if item_node else "null", anim_sprite.name if anim_sprite else "null"])
+
 
 
 func _play_loop_sound_for_item(item_data: ItemDatabase.ItemData) -> void:
@@ -541,6 +607,17 @@ func _try_pickup_item(area: Area2D) -> void:
 		node_scale = area.scale
 
 	if InventoryManager and InventoryManager.add_item(item_id, 1, node_scale):
+		# 再設置されたアイテム（ketuatu等）を拾ってスロットにしまった場合、対応するAnimatedSprite2D（ugoku_ketuatu等）を非表示にする
+		if item_node and item_node.has_meta("anim_sprite"):
+			var anim_sprite = item_node.get_meta("anim_sprite") as AnimatedSprite2D
+			if anim_sprite and is_instance_valid(anim_sprite):
+				anim_sprite.hide()
+
+		if item_id == "ketuatu":
+			var ugoku_ketuatu = get_node_or_null("ugoku_ketuatu") as AnimatedSprite2D
+			if ugoku_ketuatu and is_instance_valid(ugoku_ketuatu):
+				ugoku_ketuatu.hide()
+
 		# 成功した場合、マップ上からアイテムノードを削除
 		if item_node and item_node != self and item_node is Node2D:
 			item_node.queue_free()
@@ -584,6 +661,28 @@ func _interact_with_settibutsu(item_data: ItemDatabase.ItemData, area: Area2D, i
 
 		# 後から設置物ごとの処理を追加できる拡張用フック呼び出し
 		ItemDatabase.execute_settibutsu_effect(item_data.id, required_item_id, player, item_node if item_node != self else area)
+
+		# テレビ (tv) にリモコン (remokon) を使用した際：ugoku_tv を show() しアニメーション再生
+		if item_data.id == "tv":
+			var tv_world_item: Node = item_node if item_node != self else area.get_parent()
+			if tv_world_item:
+				var tv_sprite = tv_world_item.get_node_or_null("Sprite2D")
+				if tv_sprite:
+					tv_sprite.hide()
+
+			var ugoku_tv = get_node_or_null("ugoku_tv") as AnimatedSprite2D
+			if ugoku_tv:
+				ugoku_tv.show()
+				if ugoku_tv.sprite_frames and ugoku_tv.sprite_frames.has_animation("tv_animation"):
+					ugoku_tv.play("tv_animation")
+				elif ugoku_tv.sprite_frames and ugoku_tv.sprite_frames.has_animation("animation_tv"):
+					ugoku_tv.play("animation_tv")
+				else:
+					ugoku_tv.play()
+
+			_trigger_item_ugoku(tv_world_item, ugoku_tv)
+			print("【テレビ】リモコンを使用し ugoku_tv アニメーション再生開始")
+
 
 		# 設置物作動時のループ効果音再生 (ドライヤー, 砂嵐等)
 		var settibutsu_sounds = {

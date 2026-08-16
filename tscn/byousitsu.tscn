@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=39 format=3 uid="uid://ysfb2agjf0a3"]
 
 [ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://gd/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://cj401lisesnjg" path="res://image/stegae_img/byousitsu.png" id="2_3qcvk"]
@@ -22,8 +22,11 @@
 [ext_resource type="AudioStream" uid="uid://bdjh7wa6st84b" path="res://sound/探索環境音.mp3" id="21_l8o4p"]
 [ext_resource type="Texture2D" uid="uid://brsx8fakgwe57" path="res://image/kusai.png" id="22_ubwto"]
 [ext_resource type="AudioStream" uid="uid://dtfhwuo0r3ex5" path="res://sound/心音.mp3" id="22_uxcfu"]
-[ext_resource type="PackedScene" uid="uid://xcrteqfp7452" path="res://tscn/hintbook.tscn" id="22_ysrgi"]
+[ext_resource type="Texture2D" uid="uid://bv2c3vd2c5e12" path="res://image/ketuatu1.png" id="24_hxc2v"]
 [ext_resource type="Texture2D" uid="uid://cigputvb8vdat" path="res://image/stegae_img/background.png" id="24_ubwto"]
+[ext_resource type="Texture2D" uid="uid://jsa6p4sm64bm" path="res://image/tv1.png" id="24_upcvo"]
+[ext_resource type="Texture2D" uid="uid://bntpir8rctlfa" path="res://image/tv2.png" id="25_6kglj"]
+[ext_resource type="Texture2D" uid="uid://e04t8i3mt0hb" path="res://image/ketuatu2.png" id="25_l2tve"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_iisva"]
 vertices = PackedVector2Array(-258.688, 36.2031, -277.578, 31.5234, -41.6094, -41.0703, -40.4609, -7.02344, 511.594, 80.6563, 538.039, 88.5625, 356.898, 145.508, 403.852, 116.781, -263.477, 111.75, -280.563, 107.094, -254.477, 96.8672, -179.227, 80.8828, 147.82, 184.32, 183.492, 200.063, 169.57, 204.453, 141.422, 189.438, 338.281, 94.9297, 305.68, 115.758, -84.3203, 115.133, 42.2031, 15.6484, 28.6016, 140.391, 245.227, 71.4531, 312.82, 45.9375, 337.633, 56.0391, 148.359, 170.719, 156.141, 39.8438, 98.1094, 169.398, 110.227, -11.6797, 154.203, 4.53906, -54.3438, 167.18, -83.0078, 153.57)
@@ -67,6 +70,31 @@ _data = {
 "points": PackedVector2Array(0, 0, 0, 0, -284.8, -8.8, 0, 0, 0, 0, -92, 48.8, 0, 0, 0, 0, 88.8, 2.39999, -23.4821, -27.5463, 23.4821, 27.5463, 128.8, 35.2, -21.8182, 0.661157, 21.8182, -0.661157, 228.8, 97.6, 0, 0, 0, 0, 284, 97.6, 0, 0, 0, 0, 236.8, 125.6, 0, 0, 0, 0, 135.2, 232, 0, 0, 0, 0, 144, 197.6, 0, 0, 0, 0, 74.4, 152.8, 0, 0, 0, 0, -95.2, 168.8, 0, 0, 0, 0, -54.4, 94.4, 0, 0, 0, 0, -192, 63.2, 0, 0, 0, 0, -300.8, 64.8, 0, 0, 0, 0, -286.4, -5.59999)
 }
 point_count = 15
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ysrgi"]
+animations = [{
+"frames": [{
+"duration": 2.5,
+"texture": ExtResource("24_hxc2v")
+}, {
+"duration": 2.5,
+"texture": ExtResource("25_l2tve")
+}],
+"loop": true,
+"name": &"ketuatu_animation",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 2.5,
+"texture": ExtResource("24_upcvo")
+}, {
+"duration": 2.5,
+"texture": ExtResource("25_6kglj")
+}],
+"loop": true,
+"name": &"tv_animation",
+"speed": 5.0
+}]
 
 [node name="Node2D2" type="Node2D"]
 position = Vector2(576, 324)
@@ -536,8 +564,8 @@ scale = Vector2(0.5, 0.5)
 item_id = "nursecall"
 
 [node name="ketuatu" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
-position = Vector2(-152, -71.2)
-scale = Vector2(0.5, 0.5)
+position = Vector2(-127.2, -76.8)
+scale = Vector2(0.8, 0.8)
 item_id = "ketuatu"
 
 [node name="konsento" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
@@ -611,5 +639,19 @@ scale = Vector2(1.75, 1.75)
 texture = ExtResource("22_ubwto")
 metadata/_edit_lock_ = true
 
-[node name="hintbook" parent="." instance=ExtResource("22_ysrgi")]
-position = Vector2(320, 95.2)
+[node name="ugoku_tv" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(650, -43)
+rotation = 0.523599
+scale = Vector2(0.05, 0.05)
+skew = -0.523599
+sprite_frames = SubResource("SpriteFrames_ysrgi")
+animation = &"tv_animation"
+
+[node name="ugoku_ketuatu" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(-127.2, -76.8)
+scale = Vector2(0.09, 0.09)
+sprite_frames = SubResource("SpriteFrames_ysrgi")
+animation = &"ketuatu_animation"
+frame_progress = 0.152282

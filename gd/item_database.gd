@@ -213,7 +213,7 @@ func _register_default_items() -> void:
 		true, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/ketuatu1.png"), #（変えないで下さい）
 		func(_user, _target): print("血圧計を使用した。血圧計が伸び縮みし続ける。"), #（変えないで下さい）
 		Vector2(1.0, 1.0) ,
 		["動き"]
