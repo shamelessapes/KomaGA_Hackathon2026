@@ -326,7 +326,7 @@ func _register_default_items() -> void:
 		preload("res://image/migawari.png"), 
 		func(_user, _target): print("身代わり人形をおいた。"), 
 		Vector2(1.0, 1.0),
-		[CATEGORY_GOUSEI],
+		[CATEGORY_GOUSEI,"生き物"],
 		"fuku + pacemaker -> migawari"
 	))
 	

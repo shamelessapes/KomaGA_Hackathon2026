@@ -37,6 +37,8 @@ var is_sound_item_used_today: bool = false
 var is_smell_item_used_today: bool = false
 var is_motion_item_used_today: bool = false
 var is_temp_item_used_today: bool = false
+var is_food_item_used_today: bool = false
+var is_creature_item_used_today: bool = false
 var current_hide_point: Area2D = null
 var current_find_difficulty: float = 0.0
 var pre_hide_player_position: Vector2 = Vector2.ZERO
@@ -318,6 +320,8 @@ func _on_day_changed(_new_day: int) -> void:
 	is_smell_item_used_today = false
 	is_motion_item_used_today = false
 	is_temp_item_used_today = false
+	is_food_item_used_today = false
+	is_creature_item_used_today = false
 
 	# 1. 隠れ状態の解除、「出る？」UIの閉鎖、プレイヤー初期位置復元
 	if is_hiding or current_hide_point != null:
@@ -380,6 +384,16 @@ func _on_item_used(item_id: String, _slot_index: int) -> void:
 	# 温度カテゴリ判定
 	if item_data.has_category("温度") or item_data.has_category(ItemDatabase.CATEGORY_TEMPERATURE):
 		is_temp_item_used_today = true
+
+	# 食べ物カテゴリ判定 (使用時に kari.mp3 を再生)
+	if item_data.has_category("食べ物") or item_data.has_category(ItemDatabase.CATEGORY_FOOD):
+		is_food_item_used_today = true
+		Global.play_sound("res://sound/kari.mp3")
+		print("【食べ物使用】res://sound/kari.mp3 を再生しました。")
+
+	# 生き物カテゴリ判定
+	if item_data.has_category("生き物") or item_data.has_category(ItemDatabase.CATEGORY_CREATURE):
+		is_creature_item_used_today = true
 
 
 func _play_loop_sound_for_item(item_data: ItemDatabase.ItemData) -> void:
@@ -519,7 +533,7 @@ func _interact_with_settibutsu(item_data: ItemDatabase.ItemData, area: Area2D, i
 		var req_name = req_data.name if req_data else required_item_id
 		print("【設置物使用】設置物 '%s' を作動。必要アイテム '%s' を1個消費しました。" % [item_data.name, req_name])
 
-		# 音 / 匂い / 動き / 温度 カテゴリ判定
+		# 音 / 匂い / 動き / 温度 / 生き物 カテゴリ判定
 		if item_data.has_category("音") or (req_data and req_data.has_category("音")) or item_data.id in ["konsento", "tv"]:
 			is_sound_item_used_today = true
 		if item_data.has_category("匂い") or (req_data and req_data.has_category("匂い")):
@@ -528,6 +542,8 @@ func _interact_with_settibutsu(item_data: ItemDatabase.ItemData, area: Area2D, i
 			is_motion_item_used_today = true
 		if item_data.has_category("温度") or (req_data and req_data.has_category("温度")):
 			is_temp_item_used_today = true
+		if item_data.has_category("生き物") or (req_data and req_data.has_category("生き物")):
+			is_creature_item_used_today = true
 
 		# 後から設置物ごとの処理を追加できる拡張用フック呼び出し
 		ItemDatabase.execute_settibutsu_effect(item_data.id, required_item_id, player, item_node if item_node != self else area)
@@ -591,8 +607,41 @@ func _get_calculated_find_difficulty(area: Area2D) -> float:
 				return 0.0
 			else:
 				print("【Monster 5 ルール適用】「温度」アイテム使用済、または「horeizai」所持により見つかりにくさ 95.0% が維持されます。")
+		# Day 6 (Monster 6): 「食べ物」使用時・スロット保持時・マップ上食べ物ゼロ時のいずれかで hide_difficulty = 0
+		elif day == 6:
+			var has_food_in_inv: bool = InventoryManager != null and InventoryManager.has_item_in_category("食べ物")
+			var food_map_count: int = _get_food_items_count_on_map()
+			if is_food_item_used_today or has_food_in_inv or food_map_count == 0:
+				print("【Monster 6 ルール適用】「食べ物」使用済(%s) / 所持中(%s) / マップ上個数(%d) のため、見つかりにくさ(find_difficulty)が 0.0 に設定されました。" % [is_food_item_used_today, has_food_in_inv, food_map_count])
+				return 0.0
+			else:
+				print("【Monster 6 ルール適用】「食べ物」未使用かつ非所持かつマップ上に食べ物が存在するため、見つかりにくさ 95.0% が維持されます。")
+		# Day 7 (Monster 7): 「生き物」カテゴリのアイテムを使用しなかった場合、hide_difficulty = 0
+		elif day == 7 and not is_creature_item_used_today:
+			print("【Monster 7 ルール適用】本日「生き物」カテゴリのアイテムが使用されなかったため、見つかりにくさ(find_difficulty)が 0.0 に設定されました。")
+			return 0.0
 
 	return base_difficulty
+
+
+## 病室マップ上に存在する「食べ物」カテゴリのアイテム数を取得
+func _get_food_items_count_on_map() -> int:
+	var count: int = 0
+	var item_areas = get_tree().get_nodes_in_group("item")
+	for area in item_areas:
+		if area is Area2D and is_instance_valid(area):
+			var item_node: Node = area.get_parent()
+			var item_id: String = ""
+			if item_node and "item_id" in item_node:
+				item_id = item_node.item_id
+			elif "item_id" in area:
+				item_id = area.item_id
+
+			if item_id != "":
+				var item_data = ItemDatabase.get_item(item_id)
+				if item_data and (item_data.has_category("食べ物") or item_data.has_category(ItemDatabase.CATEGORY_FOOD)):
+					count += 1
+	return count
 
 
 ## 隠れ場所を選択し、メタデータの読み込みとUI表示を行う
@@ -975,6 +1024,9 @@ func _setup_all_hover_outlines() -> void:
 		_setup_node_hover_outline(node)
 	for node in get_tree().get_nodes_in_group("hide_point"):
 		_setup_node_hover_outline(node)
+	var hb = get_node_or_null("hintbook")
+	if hb:
+		_setup_node_hover_outline(hb)
 
 
 func _setup_node_hover_outline(target: Node) -> void:

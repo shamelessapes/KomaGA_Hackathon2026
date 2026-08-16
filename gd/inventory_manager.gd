@@ -126,6 +126,18 @@ func has_item(item_id: String) -> bool:
 	return false
 
 
+## 指定カテゴリのアイテムを1つ以上所持しているか確認
+func has_item_in_category(category_name: String) -> bool:
+	for slot in slots:
+		if slot != null and typeof(slot) == TYPE_DICTIONARY and slot.get("count", 0) > 0:
+			var item_id: String = slot.get("item_id", "")
+			var item_data = ItemDatabase.get_item(item_id)
+			if item_data:
+				if item_data.has_category(category_name) or (category_name == "食べ物" and item_data.has_category(ItemDatabase.CATEGORY_FOOD)):
+					return true
+	return false
+
+
 ## 指定のアイテムIDを所持スロットから消費/削除
 func remove_item_by_id(item_id: String, count: int = 1) -> bool:
 	for i in range(max_slots):
