@@ -26,9 +26,13 @@ extends Node2D
 @export var capture_zoom_delay: float = 1.0
 @export var capture_zoom_scale: float = 7.5
 
+## アイテム効果音の音量設定 (Inspector から変更可能)
+@export_range(-80.0, 24.0, 0.5, "suffix:dB") var item_sound_volume_db: float = 0.0
+
 ## 状態管理
 var is_hiding: bool = false
 var is_captured: bool = false
+var is_medicine_used_today: bool = false
 var current_hide_point: Area2D = null
 var current_find_difficulty: float = 0.0
 var pre_hide_player_position: Vector2 = Vector2.ZERO
@@ -156,6 +160,9 @@ func _process(_delta: float) -> void:
 			var time_sec: int = max(0, int(ceil(Phasemanager._time_left)))
 			timer_label.text = "残り時間: %d秒" % time_sec
 
+	if item_sound_player and item_sound_player.playing:
+		item_sound_player.volume_db = item_sound_volume_db
+
 
 func _setup_timer_ui() -> void:
 	var day_ui = get_node_or_null("DayUI")
@@ -196,7 +203,10 @@ func _on_search_phase_ended() -> void:
 		timer_label.hide()
 	await Global.play_sound("res://sound/ドア閉.mp3")
 	Phasemanager.start_hide_phase()
-	$dokidoki.play()
+	if not is_medicine_used_today:
+		$dokidoki.play()
+	else:
+		print("[Byousitsu] 本日は薬剤が使用されたため、かくれんぼフェーズの$dokidoki再生をスキップします")
 
 
 func _on_hide_phase_ended() -> void:
@@ -204,6 +214,11 @@ func _on_hide_phase_ended() -> void:
 		return
 	_day_transition_in_progress = true
 	$dokidoki.stop()
+
+	# かくれんぼフェーズ終了と同時にアイテムループ効果音を停止
+	if item_sound_player:
+		item_sound_player.stop()
+
 	await Global.play_sound("res://sound/ドア閉.mp3")
 
 	if Daymanager and Daymanager.current_day >= Daymanager.MAX_DAY:
@@ -232,6 +247,9 @@ func _on_monster_exited() -> void:
 
 
 func _on_day_changed(_new_day: int) -> void:
+	# 0. 本日の薬剤使用フラグをリセット
+	is_medicine_used_today = false
+
 	# 1. 隠れ状態の解除、「出る？」UIの閉鎖、プレイヤー初期位置復元
 	if is_hiding or current_hide_point != null:
 		is_hiding = false
@@ -265,6 +283,11 @@ func _on_item_used(item_id: String, _slot_index: int) -> void:
 	if item_data == null:
 		return
 
+	# 薬剤使用時は本日のかくれんぼフェーズ心音($dokidoki)を停止対象に設定
+	if item_id == "medicine":
+		is_medicine_used_today = true
+		print("【薬剤使用】本日のかくれんぼフェーズの心音($dokidoki)再生を停止します。")
+
 	# 匂い演出
 	if item_data.has_category("匂い") or item_data.has_category(ItemDatabase.CATEGORY_SMELL):
 		if nioi_sprite:
@@ -282,14 +305,16 @@ func _play_loop_sound_for_item(item_data: ItemDatabase.ItemData) -> void:
 	var s_path: String = item_data.sound_path
 	if s_path == "" or not ResourceLoader.exists(s_path):
 		var default_sounds = {
-			"nursecall": "res://sound/The_Hidden_Custom.mp3",
+			"nursecall": "res://sound/ナースコール.mp3",
+			"tv": "res://sound/砂嵐.mp3",
+			"konsento": "res://sound/ドライヤー.mp3",
+			"doraiya-": "res://sound/ドライヤー.mp3",
 			"medicine": "res://sound/心音.mp3",
-			"ketuatu": "res://sound/心音.mp3",
-			"doraiya-": "res://sound/探索環境音.mp3"
+			"ketuatu": "res://sound/心音.mp3"
 		}
-		s_path = default_sounds.get(item_data.id, "res://sound/The_Hidden_Custom.mp3")
+		s_path = default_sounds.get(item_data.id, "")
 
-	if ResourceLoader.exists(s_path):
+	if s_path != "" and ResourceLoader.exists(s_path):
 		var stream = load(s_path) as AudioStream
 		if stream:
 			if "loop" in stream:
@@ -297,8 +322,9 @@ func _play_loop_sound_for_item(item_data: ItemDatabase.ItemData) -> void:
 			if "parameters/looping" in stream:
 				stream.set("parameters/looping", true)
 			item_sound_player.stream = stream
+			item_sound_player.volume_db = item_sound_volume_db
 			item_sound_player.play()
-			print("【音アイテム再生開始】: ", item_data.name, " (パス: ", s_path, ")")
+			print("【音アイテム再生開始】: ", item_data.name, " (パス: ", s_path, ", dB: ", item_sound_volume_db, ")")
 
 
 ## 現在の日数に応じたモンスターを PathFollow2D 配下に動的生成する
@@ -411,6 +437,25 @@ func _interact_with_settibutsu(item_data: ItemDatabase.ItemData, area: Area2D, i
 
 		# 後から設置物ごとの処理を追加できる拡張用フック呼び出し
 		ItemDatabase.execute_settibutsu_effect(item_data.id, required_item_id, player, item_node if item_node != self else area)
+
+		# 設置物作動時のループ効果音再生 (ドライヤー, 砂嵐等)
+		var settibutsu_sounds = {
+			"konsento": "res://sound/ドライヤー.mp3",
+			"tv": "res://sound/砂嵐.mp3"
+		}
+		var sound_to_play: String = settibutsu_sounds.get(item_data.id, item_data.sound_path)
+		if sound_to_play != "" and ResourceLoader.exists(sound_to_play):
+			if item_sound_player:
+				var stream = load(sound_to_play) as AudioStream
+				if stream:
+					if "loop" in stream:
+						stream.set("loop", true)
+					if "parameters/looping" in stream:
+						stream.set("parameters/looping", true)
+					item_sound_player.stream = stream
+					item_sound_player.volume_db = item_sound_volume_db
+					item_sound_player.play()
+					print("【設置物音再生開始】: %s (パス: %s, dB: %.1f)" % [item_data.name, sound_to_play, item_sound_volume_db])
 
 
 

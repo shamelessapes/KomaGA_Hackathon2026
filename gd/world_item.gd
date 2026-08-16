@@ -24,8 +24,8 @@ func _setup_item_visual() -> void:
 	var item_data = ItemDatabase.get_item(item_id)
 	if item_data and item_data.icon:
 		sprite_2d.texture = item_data.icon
-	else:
+	#else:
 		# アイコンがない場合、デフォ画像やプレースホルダーを作成
-		var img = Image.create_empty(24, 24, false, Image.FORMAT_RGBA8)
-		img.fill(Color(1, 0.8, 0.2))
-		sprite_2d.texture = ImageTexture.create_from_image(img)
+		#var img = Image.create_empty(24, 24, false, Image.FORMAT_RGBA8)
+		#img.fill(Color(1, 0.8, 0.2))
+		#sprite_2d.texture = ImageTexture.create_from_image(img)

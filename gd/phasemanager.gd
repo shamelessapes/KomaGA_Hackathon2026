@@ -30,7 +30,7 @@ func _process(delta):
 
 		if _print_timer >= 1.0:
 			_print_timer = 0.0
-			print("[PhaseManager] 残り時間: %.1f秒" % _time_left)
+			#print("[PhaseManager] 残り時間: %.1f秒" % _time_left)
 
 		if _time_left <= 0.0:
 			_timer_active = false

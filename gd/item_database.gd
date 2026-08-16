@@ -81,7 +81,7 @@ func _ready() -> void:
 ## 初期アイテムの登録（将来的にJSONやResource外部読み込みへの拡張も可能）
 func _register_default_items() -> void:
 	# デフォルトプレースホルダーアイコンの作成（アイコン画像未設定時に使用）
-	var _placeholder_tex = _create_placeholder_icon()
+	#var _placeholder_tex = _create_placeholder_icon()
 
 	# 0. テストアイテム (カテゴリなし)
 	register_item(ItemData.new(
@@ -101,14 +101,16 @@ func _register_default_items() -> void:
 		"nursecall",
 		"ナースコール",
 		"看護師さんを呼べるベル、必要な時だけ押そう。",
-		true, #（変えないで下さい）
-		false, #（変えないで下さい）
-		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
-		func(_user, _target): print("ナースコールを使用した。音が部屋に響き続けてる。"), #（変えないで下さい）
+		true, 
+		false,
+		99, 
+		preload("res://image/nursecall.png"), 
+		func(_user, _target): print("ナースコールを使用した。音が部屋に響き続けてる。"), 
 		Vector2(1.0, 1.0),
 		["音"],
-		"res://sound/ドア閉.mp3"
+		"",
+		"",
+		"res://sound/ナースコール.mp3"
 	))
 
 
@@ -120,7 +122,7 @@ func _register_default_items() -> void:
 		true, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/medicine.png"), #（変えないで下さい）
 		func(_user, _target): print("薬剤を使用した。拍動が著しく低下した。"), #（変えないで下さい）
 		Vector2(1.0, 1.0) , #（変えないで下さい）
 		["音"]
@@ -135,7 +137,7 @@ func _register_default_items() -> void:
 		false, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/bloodpack.png"), #（変えないで下さい）
 		func(_user, _target): print("このアイテムは何かと組み合わせる必要がありそう。"), #（変えないで下さい）
 		Vector2(1.0, 1.0) ,
 		["匂い"]
@@ -150,7 +152,7 @@ func _register_default_items() -> void:
 		false, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/hasami.png"), #（変えないで下さい）
 		func(_user, _target): print("このアイテムは何かと組み合わせる必要がありそう。"), #（変えないで下さい）
 		Vector2(1.0, 1.0)
 	))
@@ -164,7 +166,7 @@ func _register_default_items() -> void:
 		true, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/aruko-ru.png"), #（変えないで下さい）
 		func(_user, _target): print("アルコールスプレーを振りまいた。周囲がアルコールくさい。"), #（変えないで下さい）
 		Vector2(1.0, 1.0),
 		["匂い"]
@@ -184,7 +186,8 @@ func _register_default_items() -> void:
 		Vector2(1.0, 1.0), #（変えないで下さい）
 		[CATEGORY_SETTIBUTSU,"音","動き"],
 		"remokon",
-		"res://sound/ドア閉.mp3"
+		"",
+		"res://sound/砂嵐.mp3"
 	))
 
 
@@ -196,7 +199,7 @@ func _register_default_items() -> void:
 		false, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/remokon.png"), #（変えないで下さい）
 		func(_user, _target): print("このアイテムは何かと組み合わせる必要がありそう。"), #（変えないで下さい）
 		Vector2(1.0, 1.0)  #（変えないで下さい）
 	))
@@ -225,10 +228,13 @@ func _register_default_items() -> void:
 		false, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/doraiya-.png"), #（変えないで下さい）
 		func(_user, _target): print("このアイテムは何かと組み合わせる必要がありそう。"), #（変えないで下さい）
 		Vector2(1.0, 1.0) ,
-		["音","温度"]
+		["音","温度"],
+		"",
+		"",
+		"res://sound/ドライヤー.mp3"
 	))
 
 
@@ -244,7 +250,9 @@ func _register_default_items() -> void:
 		func(_user, _target): print("このアイテムは使用できないようだ。"), #（変えないで下さい）
 		Vector2(1.0, 1.0), #（変えないで下さい）
 		[CATEGORY_SETTIBUTSU],
-		"doraiya-"
+		"doraiya-",
+		"",
+		"res://sound/ドライヤー.mp3"
 	))
 
 
@@ -256,7 +264,7 @@ func _register_default_items() -> void:
 		true, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/kudamono.png"), #（変えないで下さい）
 		func(_user, _target): print("お見舞い果物を食べた。真っ赤なリンゴ。"), #（変えないで下さい）
 		Vector2(1.0, 1.0) ,
 		["食べ物"]
@@ -271,7 +279,7 @@ func _register_default_items() -> void:
 		true, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/food.png"), #（変えないで下さい）
 		func(_user, _target): print("病院食を食べた。おなかいっぱい。"), #（変えないで下さい）
 		Vector2(1.0, 1.0),
 		["食べ物"]
@@ -286,7 +294,7 @@ func _register_default_items() -> void:
 		false, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/pacemaker.png"), #（変えないで下さい）
 		func(_user, _target): print("このアイテムは使用できないようだ。"), #（変えないで下さい）
 		Vector2(1.0, 1.0)  #（変えないで下さい）
 	))
@@ -331,7 +339,7 @@ func _register_default_items() -> void:
 		false, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/horeizai.png"), #（変えないで下さい）
 		func(_user, _target): print("ひんやりして冷たい。"), #（変えないで下さい）
 		Vector2(1.0, 1.0),
 		["温度"]
@@ -435,7 +443,7 @@ func get_item_effect_message(item_id: String) -> String:
 
 
 ## 簡易アイコン生成ヘルパー（アイコンテクスチャ指定がない場合の視覚用）
-func _create_placeholder_icon() -> ImageTexture:
-	var img = Image.create_empty(32, 32, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0.2, 0.6, 0.9, 0.8))
-	return ImageTexture.create_from_image(img)
+#func _create_placeholder_icon() -> ImageTexture:
+	#var img = Image.create_empty(32, 32, false, Image.FORMAT_RGBA8)
+	#img.fill(Color(0.2, 0.6, 0.9, 0.8))
+	#return ImageTexture.create_from_image(img)
