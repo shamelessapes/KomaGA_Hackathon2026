@@ -181,7 +181,7 @@ func _register_default_items() -> void:
 		false, #（変えないで下さい）
 		false, #（変えないで下さい）
 		99, #（変えないで下さい）
-		preload("res://image/icon.svg"), #（変えないで下さい）
+		preload("res://image/tv.png"), #（変えないで下さい）
 		func(_user, _target): print("このアイテムは何かと組み合わせる必要がありそう。"), #（変えないで下さい）
 		Vector2(1.0, 1.0), #（変えないで下さい）
 		[CATEGORY_SETTIBUTSU,"音","動き"],

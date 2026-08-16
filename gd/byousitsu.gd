@@ -74,7 +74,6 @@ func _ready() -> void:
 
 	# The scene owns the playable phase flow; the manager only keeps the state/timer.
 	Phasemanager.search_phase_duration = search_phase_duration
-	Phasemanager.start_search_phase()
 
 	if not Phasemanager.search_phase_ended.is_connected(_on_search_phase_ended):
 		Phasemanager.search_phase_ended.connect(_on_search_phase_ended)
@@ -88,7 +87,22 @@ func _ready() -> void:
 	spawn_current_day_monster()
 	_connect_monster_exit_signals()
 	_show_day_text()
-	$tansaku.play()
+
+	if Daymanager and Daymanager.current_day == 1:
+		# 1日目: コード上で tutorial.tscn を動的生成。チュートリアルの合図があるまで探索を開始しない
+		var tuto_scene = load("res://tscn/tutorial.tscn") as PackedScene
+		if tuto_scene:
+			var tuto_inst = tuto_scene.instantiate()
+			add_child(tuto_inst)
+			var cam = get_node_or_null("Camera2D") as Camera2D
+			var hb = get_node_or_null("hintbook") as Area2D
+			if tuto_inst.has_method("setup_references"):
+				tuto_inst.setup_references(self, cam, hb)
+			print("[Byousitsu] 1日目: コード上で tutorial.tscn を生成しました")
+	else:
+		Phasemanager.start_search_phase()
+		$tansaku.play()
+
 	if SaveManager:
 		SaveManager.save_game()
 	
@@ -110,9 +124,23 @@ func _is_hint_book_open() -> bool:
 	return hb != null and "is_open" in hb and hb.is_open
 
 
+func _is_tutorial_active() -> bool:
+	var tuto = get_node_or_null("tutorial")
+	return tuto != null and is_instance_valid(tuto) and "is_sequence_finished" in tuto and not tuto.is_sequence_finished
+
+
+func _is_tutorial_waiting_hintbook() -> bool:
+	var tuto = get_node_or_null("tutorial")
+	return tuto != null and is_instance_valid(tuto) and "is_waiting_hintbook" in tuto and tuto.is_waiting_hintbook
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	# 隠れている最中・ヒント本を開いている最中は他の入力を受け付けない
+	# 隠れている最中・ヒント本を開いている最中は移動を受け付けない
 	if is_hiding or _is_hint_book_open():
+		return
+
+	# チュートリアル中（ヒント本閲覧待機時以外）は移動を受け付けない
+	if _is_tutorial_active() and not _is_tutorial_waiting_hintbook():
 		return
 
 	# 右クリックされた際にマウス位置でインタラクション判定を実行
@@ -132,6 +160,16 @@ func _handle_right_click_interaction(click_pos: Vector2) -> void:
 	# マウス位置にあるArea2Dを取得
 	var clicked_area: Area2D = _get_area_at_position(click_pos)
 	if clicked_area == null:
+		return
+
+	# チュートリアル中のインタラクション制限
+	if _is_tutorial_active():
+		if _is_tutorial_waiting_hintbook():
+			# ヒント本閲覧待機中: hintbook の右クリックのみ許可し、ヒント本を開く
+			if clicked_area.has_method("open_book") or clicked_area.name == "hintbook":
+				if clicked_area.has_method("open_book"):
+					clicked_area.open_book()
+		# ヒント本以外、または待機中でない場合は他のインタラクションを全て禁止
 		return
 
 	# 0. ヒント本インタラクション (特殊処理: インベントリ追加・消去なし)

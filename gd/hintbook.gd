@@ -46,6 +46,7 @@ func open_book() -> void:
 
 	if hint_canvas:
 		hint_canvas.show()
+		Global.play_bgm_by_path("res://sound/本めくり.mp3")
 	print("[HintBook] ヒント本を開きました (Day: %d)" % day)
 
 
@@ -53,4 +54,5 @@ func close_book() -> void:
 	is_open = false
 	if hint_canvas:
 		hint_canvas.hide()
+		#Global.play_bgm_by_path("res://sound/本めくり.mp3")
 	print("[HintBook] ヒント本を閉じました")

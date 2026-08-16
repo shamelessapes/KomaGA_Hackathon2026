@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://ysfb2agjf0a3"]
+[gd_scene load_steps=35 format=3 uid="uid://ysfb2agjf0a3"]
 
 [ext_resource type="Script" uid="uid://0nsfgvdjyh25" path="res://gd/byousitsu.gd" id="1_fd7ky"]
 [ext_resource type="Texture2D" uid="uid://cj401lisesnjg" path="res://image/stegae_img/byousitsu.png" id="2_3qcvk"]
@@ -22,6 +22,8 @@
 [ext_resource type="AudioStream" uid="uid://bdjh7wa6st84b" path="res://sound/探索環境音.mp3" id="21_l8o4p"]
 [ext_resource type="Texture2D" uid="uid://brsx8fakgwe57" path="res://image/kusai.png" id="22_ubwto"]
 [ext_resource type="AudioStream" uid="uid://dtfhwuo0r3ex5" path="res://sound/心音.mp3" id="22_uxcfu"]
+[ext_resource type="PackedScene" uid="uid://xcrteqfp7452" path="res://tscn/hintbook.tscn" id="22_ysrgi"]
+[ext_resource type="Texture2D" uid="uid://cigputvb8vdat" path="res://image/stegae_img/background.png" id="24_ubwto"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_iisva"]
 vertices = PackedVector2Array(-258.688, 36.2031, -277.578, 31.5234, -41.6094, -41.0703, -40.4609, -7.02344, 511.594, 80.6563, 538.039, 88.5625, 356.898, 145.508, 403.852, 116.781, -263.477, 111.75, -280.563, 107.094, -254.477, 96.8672, -179.227, 80.8828, 147.82, 184.32, 183.492, 200.063, 169.57, 204.453, 141.422, 189.438, 338.281, 94.9297, 305.68, 115.758, -84.3203, 115.133, 42.2031, 15.6484, 28.6016, 140.391, 245.227, 71.4531, 312.82, 45.9375, 337.633, 56.0391, 148.359, 170.719, 156.141, 39.8438, 98.1094, 169.398, 110.227, -11.6797, 154.203, 4.53906, -54.3438, 167.18, -83.0078, 153.57)
@@ -77,6 +79,12 @@ day_display_fade_duration = 2.0
 item_sound_volume_db = -20.0
 metadata/_edit_lock_ = true
 
+[node name="haikei" type="Sprite2D" parent="."]
+modulate = Color(0.779291, 0.779291, 0.779291, 1)
+z_index = -20
+scale = Vector2(1.75, 1.75)
+texture = ExtResource("24_ubwto")
+
 [node name="background" type="Sprite2D" parent="."]
 z_index = -10
 position = Vector2(-8.80002, -11.2)
@@ -129,7 +137,7 @@ metadata/_edit_lock_ = true
 [node name="bed2" type="Area2D" parent="beds" groups=["hide_point"]]
 z_index = -6
 position = Vector2(311.2, -3.99997)
-metadata/find_difficulty = 85
+metadata/find_difficulty = 90
 metadata/_edit_lock_ = true
 
 [node name="Sprite2D2" type="Sprite2D" parent="beds/bed2"]
@@ -208,7 +216,7 @@ metadata/_edit_lock_ = true
 [node name="closet1" type="Area2D" parent="closets" groups=["hide_point"]]
 z_index = -8
 position = Vector2(170.4, -114.4)
-metadata/find_difficulty = 85
+metadata/find_difficulty = 95
 
 [node name="Sprite2D3" type="Sprite2D" parent="closets/closet1"]
 position = Vector2(-436, 37.6)
@@ -351,7 +359,7 @@ texture = ExtResource("15_uxcfu")
 [node name="sofa" type="Area2D" parent="." groups=["hide_point"]]
 z_index = 2
 position = Vector2(358.4, 176.8)
-metadata/find_difficulty = 70
+metadata/find_difficulty = 95
 metadata/_edit_lock_ = true
 
 [node name="Sprite2D" type="Sprite2D" parent="sofa"]
@@ -486,7 +494,9 @@ item_id = "pacemaker"
 
 [node name="tv" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
 position = Vector2(644, -44)
-scale = Vector2(0.5, 0.5)
+rotation = 0.523599
+scale = Vector2(2, 2)
+skew = -0.523599
 item_id = "tv"
 
 [node name="remokon" parent="Items" groups=["item"] instance=ExtResource("7_worlditem")]
@@ -599,3 +609,6 @@ z_index = 5
 scale = Vector2(1.75, 1.75)
 texture = ExtResource("22_ubwto")
 metadata/_edit_lock_ = true
+
+[node name="hintbook" parent="." instance=ExtResource("22_ysrgi")]
+position = Vector2(320, 95.2)
