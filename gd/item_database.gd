@@ -327,6 +327,7 @@ func _register_default_items() -> void:
 		func(_user, _target): print("身代わり人形をおいた。"), 
 		Vector2(1.0, 1.0),
 		[CATEGORY_GOUSEI,"生き物"],
+		"",
 		"fuku + pacemaker -> migawari"
 	))
 	
@@ -358,6 +359,7 @@ func _register_default_items() -> void:
 		func(_user, _target): print("血をぶちまけた。部屋に血の匂いが充満する！"), 
 		Vector2(1.0, 1.0),
 		[CATEGORY_GOUSEI,"匂い"],
+		"",
 		"bloodpack + hasami -> kusai_ti"
 	))
 

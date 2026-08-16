@@ -29,6 +29,12 @@ extends Node2D
 ## アイテム効果音の音量設定 (Inspector から変更可能)
 @export_range(-80.0, 24.0, 0.5, "suffix:dB") var item_sound_volume_db: float = 0.0
 
+## 身代わり人形（migawari）使用時の地面配置スケール（Inspector / スクリプトから変更可能）
+@export var migawari_world_scale: Vector2 = Vector2(1.0, 1.0)
+
+## 破られた血液パック（kusai_ti）ドロップ時の配置スケール（Inspector / スクリプトから変更可能）
+@export var kusai_ti_world_scale: Vector2 = Vector2(1.0, 1.0)
+
 ## 状態管理
 var is_hiding: bool = false
 var is_captured: bool = false
@@ -394,6 +400,37 @@ func _on_item_used(item_id: String, _slot_index: int) -> void:
 	# 生き物カテゴリ判定
 	if item_data.has_category("生き物") or item_data.has_category(ItemDatabase.CATEGORY_CREATURE):
 		is_creature_item_used_today = true
+
+	# 身代わり人形 (migawari) 使用時：地面 (NavigationRegion2D 内) にワールドアイテムとして配置
+	if item_id == "migawari":
+		_spawn_migawari_world_item()
+
+
+## 身代わり人形（migawari）をプレイヤーの近くの地面（NavigationRegion2D内）へ配置する
+func _spawn_migawari_world_item() -> void:
+	if player == null:
+		return
+
+	var raw_pos: Vector2 = player.global_position
+	var final_pos: Vector2 = raw_pos
+	var nav_map = get_world_2d().get_navigation_map()
+	if nav_map.is_valid():
+		final_pos = NavigationServer2D.map_get_closest_point(nav_map, raw_pos)
+
+	var world_item_scene = preload("res://tscn/world_item.tscn")
+	var world_item = world_item_scene.instantiate()
+	world_item.item_id = "migawari"
+	world_item.scale = migawari_world_scale
+
+	var items_container = get_node_or_null("Items")
+	if items_container:
+		items_container.add_child(world_item)
+	else:
+		add_child(world_item)
+
+	world_item.global_position = final_pos
+	_setup_node_hover_outline(world_item)
+	print("【身代わり人形】地面(%s)に配置しました。Scale: %s" % [final_pos, migawari_world_scale])
 
 
 func _play_loop_sound_for_item(item_data: ItemDatabase.ItemData) -> void:

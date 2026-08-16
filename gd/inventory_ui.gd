@@ -137,7 +137,13 @@ func handle_item_drop_to_world(slot_index: int, item_id: String) -> void:
 	var world_item_scene = preload("res://tscn/world_item.tscn")
 	var world_item = world_item_scene.instantiate()
 	world_item.item_id = item_id
-	world_item.scale = saved_scale
+
+	if item_id == "migawari" and current_scene and "migawari_world_scale" in current_scene:
+		world_item.scale = current_scene.migawari_world_scale
+	elif item_id == "kusai_ti" and current_scene and "kusai_ti_world_scale" in current_scene:
+		world_item.scale = current_scene.kusai_ti_world_scale
+	else:
+		world_item.scale = saved_scale
 
 	var items_container = current_scene.get_node_or_null("Items")
 	if items_container:
