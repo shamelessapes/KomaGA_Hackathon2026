@@ -1,0 +1,123 @@
+[gd_scene load_steps=13 format=3 uid="uid://xcrteqfp7452"]
+
+[ext_resource type="Texture2D" uid="uid://ctwklys1ojhak" path="res://image/book.png" id="1_po7b7"]
+[ext_resource type="Texture2D" uid="uid://doh4ofljmvgd8" path="res://image/hint_book.png" id="2_mjjq7"]
+[ext_resource type="Texture2D" uid="uid://wgorlp87t32o" path="res://image/hint1.png" id="3_csrkj"]
+[ext_resource type="Texture2D" uid="uid://nb53xc8mrviw" path="res://image/hint2.png" id="4_vdvnk"]
+[ext_resource type="Texture2D" uid="uid://gwqh7t86ygbs" path="res://image/hint3.png" id="5_wwhrw"]
+[ext_resource type="Texture2D" uid="uid://fpyyt0pno455" path="res://image/hint4.png" id="6_rnvt5"]
+[ext_resource type="Texture2D" uid="uid://btwqw0jh4olen" path="res://image/hint5.png" id="7_5nvnh"]
+[ext_resource type="Texture2D" uid="uid://dq1y4y3k1nll2" path="res://image/hint6.png" id="8_4vgqy"]
+[ext_resource type="Texture2D" uid="uid://b7phrnyakyges" path="res://image/hint7.png" id="9_81edw"]
+[ext_resource type="FontFile" uid="uid://00a5g5gvlt66" path="res://font/shippori3/ShipporiMincho-OTF-Bold.otf" id="10_bo1jc"]
+[ext_resource type="Script" uid="uid://5421jx7lwdem" path="res://gd/hintbook.gd" id="11_script"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ryfxi"]
+radius = 39.6232
+
+[node name="hintbook" type="Area2D"]
+script = ExtResource("11_script")
+
+[node name="book" type="Sprite2D" parent="."]
+position = Vector2(18, -21)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("1_po7b7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_ryfxi")
+
+[node name="hint" type="CanvasLayer" parent="."]
+layer = 20
+metadata/_edit_lock_ = true
+
+[node name="Overlay" type="ColorRect" parent="hint"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.4)
+metadata/_edit_lock_ = true
+
+[node name="hint_page" type="TextureRect" parent="hint"]
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("2_mjjq7")
+metadata/_edit_lock_ = true
+
+[node name="hint1" type="TextureRect" parent="hint"]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("3_csrkj")
+metadata/_edit_lock_ = true
+
+[node name="hint2" type="TextureRect" parent="hint"]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("4_vdvnk")
+metadata/_edit_lock_ = true
+
+[node name="hint3" type="TextureRect" parent="hint"]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("5_wwhrw")
+metadata/_edit_lock_ = true
+
+[node name="hint4" type="TextureRect" parent="hint"]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("6_rnvt5")
+metadata/_edit_lock_ = true
+
+[node name="hint5" type="TextureRect" parent="hint"]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("7_5nvnh")
+metadata/_edit_lock_ = true
+
+[node name="hint6" type="TextureRect" parent="hint"]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("8_4vgqy")
+metadata/_edit_lock_ = true
+
+[node name="hint7" type="TextureRect" parent="hint"]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+texture = ExtResource("9_81edw")
+metadata/_edit_lock_ = true
+
+[node name="Control" type="Control" parent="hint"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="book_close" type="Button" parent="hint/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 12.5
+anchor_top = 14.0
+anchor_right = 16.45
+anchor_bottom = 14.975
+offset_left = -3.05176e-05
+offset_top = -6.10352e-05
+theme_override_fonts/font = ExtResource("10_bo1jc")
+theme_override_font_sizes/font_size = 30
+text = "本を閉じる"

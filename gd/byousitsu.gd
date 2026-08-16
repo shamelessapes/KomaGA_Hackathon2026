@@ -101,9 +101,14 @@ func _ready() -> void:
 	_setup_all_hover_outlines()
 
 
+func _is_hint_book_open() -> bool:
+	var hb = get_node_or_null("hintbook")
+	return hb != null and "is_open" in hb and hb.is_open
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	# 隠れている最中は右クリックを受け付けない（「出る？」UIを維持する）
-	if is_hiding:
+	# 隠れている最中・ヒント本を開いている最中は他の入力を受け付けない
+	if is_hiding or _is_hint_book_open():
 		return
 
 	# 右クリックされた際にマウス位置でインタラクション判定を実行
@@ -117,12 +122,20 @@ func _unhandled_input(event: InputEvent) -> void:
 # 1. 右クリックインタラクション処理 (優先順位: アイテム -> 隠れ場所)
 # ========================================================
 func _handle_right_click_interaction(click_pos: Vector2) -> void:
-	if is_hiding:
+	if is_hiding or _is_hint_book_open():
 		return
 
 	# マウス位置にあるArea2Dを取得
 	var clicked_area: Area2D = _get_area_at_position(click_pos)
 	if clicked_area == null:
+		return
+
+	# 0. ヒント本インタラクション (特殊処理: インベントリ追加・消去なし)
+	if clicked_area.has_method("open_book") or clicked_area.name == "hintbook":
+		var distance: float = player.global_position.distance_to(clicked_area.global_position)
+		if distance <= item_pickup_distance:
+			if clicked_area.has_method("open_book"):
+				clicked_area.open_book()
 		return
 
 	# 1. アイテム取得判定 (最優先)
